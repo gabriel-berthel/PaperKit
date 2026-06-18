@@ -1,7 +1,7 @@
 
 
-from model.parsed_document import ParsedDocument
-from model.source_document import SourceDocument
+from p6t.model.parsed_document import ParsedDocument
+from p6t.model.source_document import SourceDocument
 from p6t.parsing.core.docling_converter import DoclingConverter
 from p6t.parsing.core.ocr import SuryaLatexOCR
 from docling_core.types.doc import DoclingDocument
