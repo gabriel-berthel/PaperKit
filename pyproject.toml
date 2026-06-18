@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "PaperKit"
+version = "0.1.0"
+description = "Making science more accecible! "
+requires-python = ">=3.12"
+
+dependencies = [
+    "docling",
+    "surya-ocr", # depends on llama-cpp backend or vlm
+    "pdf2image",
+    "python-poppler" # depends on poppler-cpp backend,
+    "pytesseract" # you need to install it on your machine
+]
+
+[project.scripts]
+p6t-parse = "p6t.parse:main"
