@@ -9,11 +9,28 @@ description = "Making science more accecible! "
 requires-python = ">=3.12"
 
 dependencies = [
+    
+     # PDF Parsing
     "docling",
+
+    # Maths Inlining
     "surya-ocr", # depends on llama-cpp backend or vlm
+    
+    # PDF Cropping
     "pdf2image",
     "python-poppler" # depends on poppler-cpp backend,
-    "pytesseract" # you need to install it on your machine
+    
+    # Figure angle
+    "pytesseract" # you need to install it on your machine,
+
+    # Sentence Segmentation
+    "pysbd",
+
+    # Text Normalization
+    "deepmultilingualpunctuation",
+    "nltk", # + nltk.download('words')
+    "language_tool_python", # requires openjdk :)
+    "pylatexenc",
 ]
 
 [project.scripts]

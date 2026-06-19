@@ -1,0 +1,61 @@
+
+
+from p6t.db.db import push
+from p6t.model.normalized_document import NormalizedDocument
+import pickle
+from pathlib import Path
+import argparse
+
+from p6t.model.parsed_document import ParsedDocument
+from p6t.normalizing.core.normalized_document_builder import NormalizedDocumentBuilder
+
+def normalize_document(parsed_document: ParsedDocument) -> NormalizedDocument:
+    print("Building Normalized")
+    normalized_document = NormalizedDocumentBuilder(parsed_document).build()
+    return normalized_document
+
+def normalize_and_push(parsed_document: ParsedDocument) -> NormalizedDocument:
+    normalized_document = normalize_document(parsed_document)
+    push(parsed_document.source_document.pdf_hash, 'normalizing', normalized_document)
+
+def normalize_and_pickle(parsed_document, output_path, output_name):
+    """
+    Normalize ParsedDocument into a NormalizedDocument and save it as a pickle file.
+    """
+
+    print("Normalizing document content")
+    normalized_document: NormalizedDocument = normalize_document(parsed_document)
+
+    output_path = Path(output_path)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    file_path = output_path / f"{output_name}.pkl"
+
+    print(f"Saving pickled document to {file_path}")
+
+    with open(file_path, "wb") as f:
+        pickle.dump(normalized_document, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+    print("Done")
+
+    return file_path
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("parsed_doc_pkl")
+    parser.add_argument("output_path")
+    parser.add_argument("--name", default="parsed_doc_output")
+
+    args = parser.parse_args()
+
+    with open(args.parsed_doc_pkl, 'rb') as f:
+        parsed_document: ParsedDocument = pickle.load(f)
+
+    normalize_and_pickle(
+        parsed_document,
+        args.output_path,
+        args.name
+    )
+
+if __name__ == "__main__":
+    main()

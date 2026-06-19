@@ -1,5 +1,6 @@
 
 
+from p6t.db.db import push
 from p6t.model.parsed_document import ParsedDocument
 from p6t.model.source_document import SourceDocument
 from p6t.parsing.core.docling_converter import DoclingConverter
@@ -35,7 +36,7 @@ def parse_document(file_path) -> ParsedDocument:
 
     print("Collecting textual element crops")
     for element, _ in docling_document.iterate_items():
-        if element.label in ["caption", "text", "list_item"]:
+        if element.label in ["caption", "text", "list_item", "footnote"]:
             bbox = element.prov[0].bbox
             page_no = element.prov[0].page_no
 
@@ -54,6 +55,10 @@ def parse_document(file_path) -> ParsedDocument:
             element.text = text
 
     return ParsedDocument(source_document, docling_document)
+
+def parse_and_push(pdf_path):
+    parsed_document: ParsedDocument = parse_document(pdf_path)
+    push(parsed_document.source_document.pdf_hash, 'parsing', parsed_document)
 
 def parse_and_pickle(pdf_path, output_path, output_name):
     """
