@@ -2,7 +2,11 @@
 
 import logging
 from functools import lru_cache
+import os
+from pathlib import Path
 import subprocess
+
+from piper import PiperVoice
 
 log = logging.getLogger("init_warmup")
 logging.basicConfig(level=logging.INFO)
@@ -124,6 +128,19 @@ def download_docling_models():
     except subprocess.CalledProcessError as e:
         log.error("Docling model download failed:")
         log.error(e.stderr)
+
+
+# ----------------------------
+# Piper
+# ----------------------------  
+def init_piper(voice):
+    """
+    Warm up Piper TTS voice models.
+    """
+
+    model_path = Path(f"voices/{voice}.onnx")
+    config_path = Path(f"voices/{voice}.onnx.json")
+    return PiperVoice.load(model_path, config_path=config_path)
 
 # ----------------------------
 # Master initializer

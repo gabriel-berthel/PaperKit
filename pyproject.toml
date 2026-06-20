@@ -9,6 +9,10 @@ description = "Making science more accecible! "
 requires-python = ">=3.12"
 
 dependencies = [
+    "curl_cffi",
+    "piper-tts",
+    "fastapi",
+    "uvicorn",
     
      # PDF Parsing
     "docling",
@@ -31,6 +35,13 @@ dependencies = [
     "nltk", # + nltk.download('words')
     "language_tool_python", # requires openjdk 
     "pylatexenc",
+
+    # tools
+    "gliner2[local]",
+    "spacy",
+    "sumy",
+    "sentence_transformers",
+    "scikit-learn"
 ]
 
 [project.scripts]
