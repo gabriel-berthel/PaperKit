@@ -168,8 +168,8 @@ class TextCleaner:
 
     @staticmethod
     def clean_bullet_text(s: str) -> str:
-        bullet_chars = "•*-–—"  # add or remove chars as needed
-        return s.lstrip(bullet_chars)
+        bullet_chars = "•*-–—-"  # add or remove chars as needed
+        return s.strip().lstrip(bullet_chars)
 
     @staticmethod
     def unify_spacing(text: str) -> str:

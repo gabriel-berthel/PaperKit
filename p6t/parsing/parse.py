@@ -8,7 +8,6 @@ from p6t.parsing.core.ocr import SuryaLatexOCR
 from docling_core.types.doc import DoclingDocument
 import pickle
 from pathlib import Path
-import argparse
 import os
 import logging
 
@@ -81,21 +80,3 @@ def parse_and_pickle(pdf_path, output_path, output_name):
     print("Done")
 
     return file_path
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("pdf_path")
-    parser.add_argument("output_path")
-    parser.add_argument("--name", default="output")
-
-    args = parser.parse_args()
-
-    parse_and_pickle(
-        pdf_path=args.pdf_path,
-        output_path=args.output_path,
-        output_name=args.name
-    )
-
-if __name__ == "__main__":
-    os.environ["SURYA_INFERENCE_KEEP_ALIVE"] = "1"
-    main()

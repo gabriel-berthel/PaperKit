@@ -1,10 +1,11 @@
 
 
+from pathlib import Path
+
 from p6t.db.db import push
 from p6t.model.normalized_document import NormalizedDocument
 import pickle
-from pathlib import Path
-import argparse
+
 
 from p6t.model.parsed_document import ParsedDocument
 from p6t.normalizing.core.normalized_document_builder import NormalizedDocumentBuilder
@@ -39,23 +40,3 @@ def normalize_and_pickle(parsed_document, output_path, output_name):
     print("Done")
 
     return file_path
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("parsed_doc_pkl")
-    parser.add_argument("output_path")
-    parser.add_argument("--name", default="parsed_doc_output")
-
-    args = parser.parse_args()
-
-    with open(args.parsed_doc_pkl, 'rb') as f:
-        parsed_document: ParsedDocument = pickle.load(f)
-
-    normalize_and_pickle(
-        parsed_document,
-        args.output_path,
-        args.name
-    )
-
-if __name__ == "__main__":
-    main()
