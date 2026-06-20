@@ -11,7 +11,7 @@ from PIL.Image import Image as PILImage
 class IRSection(IRContainerNode):
     def __init__(self, text: str):
         super().__init__([])
-        header_text = text.rstrip('.')
+        header_text = text.strip().rstrip('.')
         self.text = header_text
         
     @staticmethod
@@ -49,9 +49,10 @@ class IRFormula(IRTextNode):
 
 @final            
 class IRHeader(IRTextNode):
-    def __init__(self, text: str):
-        header_text = text.rstrip('.')
+    def __init__(self, text: str, level = 1):
+        header_text = text.strip().rstrip('.')
         super().__init__(header_text)
+        self.level = level
     
     @staticmethod
     def build(element):

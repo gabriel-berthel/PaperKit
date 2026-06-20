@@ -55,7 +55,8 @@ class TextCleaner:
 
         # Repair bracket ref ahead
         text = re.sub(r'\[(\d+)\s', r'[\1]', text)
-        pattern = re.compile(r'(?:\[(\d+)\])+')
+    
+        pattern = re.compile(r'(?:\[(\d+)\]\s?){2,}')
 
         def repl(match):
             nums = re.findall(r'\[(\d+)\]', match.group(0))
@@ -65,12 +66,13 @@ class TextCleaner:
 
     @staticmethod
     def textify_footnotes(text):
-        return  re.sub(r"<sup>([^<]*)</sup>", r"footnote \1", text)
+        return  re.sub(r"<sup>(.*?)</sup>", r"footnote \1", text)
     
     @staticmethod
     def normalize_inlined_maths(text):
         def repl(match):
             latex = match.group(1)
+            latex = re.sub(' ', '', latex)
             return f"$ {texer.latex_to_text(latex)} $"
  
         return re.sub(r"<math>(.*?)</math>", repl, text, flags=re.DOTALL)
@@ -151,6 +153,9 @@ class TextCleaner:
 
         # Mask thousands separators: 1,000 / 1,000,000
         mask(r'\d{1,3}(?:,\d{3})+')
+        
+        # Mask urls
+        mask(r'https?://\S+')
 
         return text, placeholders
 
@@ -160,6 +165,11 @@ class TextCleaner:
         for key, value in placeholders.items():
             text = text.replace(key, value)
         return text
+
+    @staticmethod
+    def clean_bullet_text(s: str) -> str:
+        bullet_chars = "•*-–—"  # add or remove chars as needed
+        return s.lstrip(bullet_chars)
 
     @staticmethod
     def unify_spacing(text: str) -> str:
@@ -175,7 +185,6 @@ class TextCleaner:
         text = re.sub(r'\s+\)', ')', text)
 
         # Normalize newlines and collapse spaces
-        text = re.sub(r'\n', ' ', text)
         text = re.sub(r'\s+', ' ', text).strip()
         
         text = TextCleaner._unmask_protected(text, placeholders)

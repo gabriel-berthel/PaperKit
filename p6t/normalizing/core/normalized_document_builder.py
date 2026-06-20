@@ -1,6 +1,6 @@
 import re
 
-from docling_core.types.doc import DoclingDocument, NodeItem
+from docling_core.types.doc import DoclingDocument
 import pytesseract
 
 from p6t.model.dto.ir_nodes import IRCode, IRFigure, IRFootnote, IRFormula, IRHeader, IRListItem, IRSection, IRTable, IRParagraph
@@ -17,6 +17,9 @@ def is_abtract(heading: str) -> bool:
 
 def is_biblio(heading: str) -> bool: 
     return "references" in heading.lower() or "bibliography" in heading.lower()
+    
+def is_reference():
+    pass
 
 class NormalizedDocumentBuilder:
     
@@ -60,18 +63,9 @@ class NormalizedDocumentBuilder:
     def _collect_sections(self) -> list[list]:
         filtered = [e for e, _ in self.docling_document.iterate_items() if e.label in ['text', 'formula', 'section_header', 'list_item', 'code']]
         
-        # Looking for abtract to start collection
-        start_idx = next(
-            (i for i, s in enumerate(filtered) if hasattr(s, 'text') and is_abtract(s.text)),
-            None
-        )
-        
-        if start_idx:
-            filtered = filtered[start_idx:]
-        
         sections = []
         curr_section = []
-        for element in filtered:
+        for element in filtered:        
             if element.label == "section_header":
                 if curr_section:
                     sections.append(curr_section)
@@ -102,7 +96,7 @@ class NormalizedDocumentBuilder:
                     section_node: IRSection = IRSection(heading)
                     e[0].text = text
                 else: 
-                    section_node = IRSection("Unknown section")
+                    section_node = IRSection("[SECTION]")
 
             # Build IRNodes
             for children in e[starting_element:]:
@@ -116,20 +110,21 @@ class NormalizedDocumentBuilder:
                     node = IRListItem.build(children)
                 elif children.label == "code":
                     node = IRCode.build(children)
-
+                
                 section_node.items.append(node)
             
             section_nodes.append(section_node)
-        
+    
+        # Looking for abtract to start collection
         start_idx = next(
-            (i for i, s in enumerate(section_nodes) if is_abtract(s.text)),
-            None
+            (i for i, s in enumerate(section_nodes)if is_abtract(s.text)),
+            0
         )
-        
-        # Discarding reference section.
-        filtered_sections = [s for s in section_nodes if not is_biblio(s.text)]
 
-        return filtered_sections
+        # Discarding reference section & empty sections
+        filtered_sections = [s for s in section_nodes if not is_biblio(s.text) and not len(s.items) == 0 ]
+
+        return filtered_sections[start_idx:]
 
     
     # PACKING & DISCARDING
@@ -328,7 +323,7 @@ class NormalizedDocumentBuilder:
         
         # Foonote normalisation
         text = TextCleaner.textify_footnotes(text)
-
+        
         # Collapsing texts refs into predictable words
         text = TextCleaner.normalize_structure_in_text(text)
 
@@ -346,6 +341,11 @@ class NormalizedDocumentBuilder:
 
         # Fixing hyphenation
         text = TextFixer.fix_hyphen(text)
+        
+        # Removing leading bullet marker
+        text = TextCleaner.clean_bullet_text(text)
+        
+        text = re.sub(r'\s+', ' ', text).strip()
 
         return text.strip()
 
@@ -362,6 +362,7 @@ class NormalizedDocumentBuilder:
         text = TextCleaner.remove_html_tags(text)
         text = TextCleaner.remove_latex_formatting(text)
         text = TextCleaner.format_latex_alignment(text)
+        text = re.sub(' ', '', text)
         return text
 
 
@@ -392,6 +393,7 @@ class NormalizedDocumentBuilder:
 
                 e.text = e.text if e.text else e.orig
                 e.text = self.clean_formula(e.text)
+                
             elif e.label == 'footnote':
                 self.log(f'Normalizing {e.self_ref}' , 1)
 
@@ -400,7 +402,7 @@ class NormalizedDocumentBuilder:
             # No english words
             # If not an empty space, this may indicate Docling missed parts of structures such as Tables or Figures
             # Future versions should investigate __DISCARD__ labels 
-            if hasattr(e, 'text') and not TextFixer.has_known_word(e.text):
+            if e.label in ['text','list_item'] and not TextFixer.has_known_word(e.text):
                 self.log(f'Discarding {e.self_ref}' , 1)
                 e.label = "__DISCARD__"
         
@@ -492,7 +494,7 @@ class NormalizedDocumentBuilder:
         self.log('Resolving missing headings', 1) 
         for section in sections:
             section.items = self._fix_headings(section.items)
-
+            
         # Reconstruct hierarchy from numbering. 
         # first header is top level, subsequent ones are parent + 1.
         self.log('Resolving section level', 1) 

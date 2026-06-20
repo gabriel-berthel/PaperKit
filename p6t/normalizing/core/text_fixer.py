@@ -10,42 +10,104 @@ from p6t.normalizing.core.text_cleaner import TextCleaner
 tool = language_tool_python.LanguageTool('en-US')
 seg = pysbd.Segmenter(language="en", clean=False, doc_type=None)
 word_set = set(words.words())
+
 punctuation_model = PunctuationModel()
 
-PRONOUNS = {
-    'i', 'we', 'they', 'he', 'she', 'it',
-    'our', 'their', 'his', 'her', 'its', 'my',
-    'this', 'these', 'those', 'the',
-}
-
-CONNECTIVES = {
-    # Addition
-    'moreover', 'furthermore', 'additionally', 'also', 'besides',
-    # Contrast
-    'however', 'nevertheless', 'nonetheless', 'yet', 'although', 'though',
-    # Cause/result
-    'therefore', 'thus', 'hence', 'consequently', 'accordingly',
-    # Sequence
-    'finally', 'subsequently', 'meanwhile', 'previously',
-    # Illustration
-    'specifically', 'notably', 'particularly', 'importantly', "by", "in", "to", "despite"
-}
 
 STRUCTURE = {
-    "table", "figure", "section", "theorem", "definition", "lema", "algorithm"
+    'table',
+    'figure',
+    'section',
+    'subsection',
+    'appendix',
+    'chapter',
+    'theorem',
+    'lemma',
+    'corollary',
+    'proposition',
+    'definition',
+    'proof',
+    'algorithm',
+    'equation',
+    'example',
+    'remark'
 }
 
-SUBORDINATORS = {
-    # Time
-    'when', 'while', 'after', 'before', 'since', 'until', 'once',
-    # Condition
-    'if', 'unless', 'whether', 'provided',
-    # Cause
+SENTENCE_MARKERS = {
+    # Articles
+    'a', 'an', 'the',
+
+    # Personal pronouns
+    'i', 'we', 'you', 'they', 'he', 'she', 'it',
+
+    # Object pronouns
+    'me', 'us', 'him', 'her', 'them',
+
+    # Possessive determiners
+    'my', 'our', 'your', 'their', 'his', 'its',
+
+    # Possessive pronouns
+    'mine', 'ours', 'yours', 'theirs', 'hers',
+
+    # Demonstratives
+    'this', 'that', 'these', 'those',
+
+    # Reflexives
+    'myself', 'yourself', 'himself', 'herself',
+    'itself', 'ourselves', 'yourselves', 'themselves',
+
+    # Indefinite pronouns
+    'someone', 'somebody', 'something',
+    'anyone', 'anybody', 'anything',
+    'everyone', 'everybody', 'everything',
+    'none', 'nothing', 'each', 'either', 'neither',
+
+    # Relative / interrogative
+    'who', 'whom', 'whose', 'which', 'what',
+    'where', 'when', 'why',
+
+    # Subordinating conjunctions
+    'if', 'unless', 'whether',
+    'provided', 'assuming',
     'because', 'since', 'as',
-    # Contrast
-    'although', 'though', 'whereas', 'while',
-    # Other
-    'that', 'which', 'where', 'who', 'whom',
+    'although', 'though', 'whereas',
+    'while', 'before', 'after',
+    'until', 'once',
+
+    # Conjunctive adverbs / discourse markers
+    'however', 'therefore', 'thus',
+    'hence', 'consequently', 'accordingly',
+    'moreover', 'furthermore', 'additionally',
+    'besides', 'indeed', 'likewise',
+    'nevertheless', 'nonetheless',
+    'yet', 'instead', 'conversely', 'otherwise',
+    'similarly', 'analogously',
+
+    # Sequencing
+    'first', 'second', 'third',
+    'next', 'then', 'subsequently',
+    'meanwhile', 'previously', 'finally',
+
+    # Academic exposition
+    'specifically', 'namely',
+    'particularly', 'notably',
+    'importantly',
+
+    # Reference words
+    'above', 'below',
+    'following', 'preceding',
+    'aforementioned',
+    'former', 'latter',
+    'respectively',
+    'herein', 'therein',
+    
+    # Quantifiers
+    'most', 'many', 'much', 'more', 'less', 'fewer',
+    'some', 'several', 'various', 'numerous',
+    'few', 'little', 'all', 'both',
+    
+    # Usual starts:
+    'in', 'for', 'one', 'on', 'to'
 }
 
 class TextFixer:
@@ -78,7 +140,7 @@ class TextFixer:
         Assumes sentence boundaries have been fixed upstream.
         If headers are being misclassified, the heuristics here are the likely culprit.
         """
-        
+   
         # Missed paragraph continuation
         if sentence[0].islower() or not sentence[0].isalnum():
             return False
@@ -88,14 +150,10 @@ class TextFixer:
         if "et al" in sentence or "keywords:" in sentence.lower():
             return False
         
-          # No recognized words → likely an artifact, table fragment, or missed formula.
-        # Better to leave it as a paragraph than misclassify it.
         header_words = TextCleaner.remove_punct(sentence)
-        if not TextFixer.has_known_word(header_words):
-            return False
 
-        # Short sentence with no pronouns, connectives, or subordinators → likely a header.
-        if len(header_words.split()) <= 10 and not TextFixer.first_word_in(sentence, PRONOUNS | CONNECTIVES | STRUCTURE | SUBORDINATORS):
+        # Likely a header (not text marker)
+        if len(header_words.split()) <= 10 and not TextFixer.first_word_in(sentence, SENTENCE_MARKERS | STRUCTURE):
             return True
         
         return False
@@ -122,13 +180,24 @@ class TextFixer:
         return re.sub(r"(?<!\d)[.,;:!?'](?!\d)","",text) 
    
     @staticmethod
-    def find_first_missing_punct(text):
+    def find_candidate_period(text):
         """
         Deepmultilingualpunctuation is slow but produces good results for punctuation restoration.
         It can't infer headers though, so we locate an initial boundary, then scan adjacent words
         for a better split: headings tend to capitalize most words, which serves as the signal.
+        
+        Note: if boundary lookup fails, missing pre-sub rule might be the culprit.
+        
+        This function either returns a single word (the candidate boundary) or None.
         """
-                
+        
+        # This broke deep punctuation a handful of times
+        # Removing these from the search avoid reliance on heuristics later.
+        text = re.sub(r'\[(.*?)\]', ' ', text)
+        text = re.sub(r'\((.*?)\)', ' ', text)
+        text = re.sub(r'\{(.*?)\}', ' ', text)
+        text = re.sub(r'\$(.*?)\$', ' ', text)
+        
         fixed_boundary = punctuation_model.restore_punctuation(text)        
         
         if (fixed_boundary.count(".") <= 1) or text[0].islower():
@@ -164,7 +233,7 @@ class TextFixer:
                 break
             
             idx += 1
-            
+
         return text_split[best_boundary] 
 
     @staticmethod
@@ -174,9 +243,9 @@ class TextFixer:
         return first_word in words
     
     @staticmethod
-    def any_word_in(text: str, words) -> bool:
+    def no_word_in(text: str, words) -> bool:
         words = set(text.strip().lower().split())
-        return bool(words & (words))
+        return len(words)
     
     @staticmethod
     def fix_missing_boundary(text: str) -> str:
@@ -202,19 +271,23 @@ class TextFixer:
         segments = TextFixer.split_sentences(text)
         left = segments[0]
         
-        # rejected, most likely a no normal sentence.
-        if TextFixer.first_word_in(left, PRONOUNS | CONNECTIVES | STRUCTURE | SUBORDINATORS):
+        # Left is clearly a sentence
+        if TextFixer.first_word_in(left, SENTENCE_MARKERS | STRUCTURE):
             return text
         
-        # rejected, because boundary is very likely to be already good.
-        if len(left.split(" ")) <= 9 and not TextFixer.any_word_in(left, PRONOUNS | CONNECTIVES | SUBORDINATORS):
+        # if small left side & multiple sentence marker => we assume it is a sentence.
+        if len(left.split(" ")) <= 10 and TextFixer.no_word_in(left, SENTENCE_MARKERS | STRUCTURE) <= 3:
             return text
         
         # Restoring boundary w/ machine learning AND heuristics.
-        missing_boundary = TextFixer.find_first_missing_punct(left)
+        candidate_boundary = TextFixer.find_candidate_period(left)
         
-        if missing_boundary:
-            return re.sub(rf'\b{missing_boundary}\b', missing_boundary + '.', text, count=1)
+        if candidate_boundary:
+            # Colon as boundary is likely to be already well formed.
+            if text.startswith(candidate_boundary + ':'):
+                return text
+
+            return re.sub(rf'\b{candidate_boundary}\b', candidate_boundary + '.', text, count=1)
     
         return text
     
