@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from p6t.db.db import push
+from p6t.persistance.db import push
 from p6t.model.normalized_document import NormalizedDocument
 import pickle
 

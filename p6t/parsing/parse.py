@@ -1,6 +1,6 @@
 
 
-from p6t.db.db import push
+from p6t.persistance.db import push
 from p6t.model.parsed_document import ParsedDocument
 from p6t.model.source_document import SourceDocument
 from p6t.parsing.docling_converter import DoclingConverter

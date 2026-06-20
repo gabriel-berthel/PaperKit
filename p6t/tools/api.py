@@ -5,7 +5,7 @@ import wave
 
 from fastapi import APIRouter, Request, Response
 
-from p6t.bootsrap import init_piper
+from p6t.tools.bootsrap import init_piper
 from p6t.tools.core import gliner_probe
 from p6t.tools.core.llm import llm_explain_term, llm_simple_task, llm_simplify_text
 from p6t.tools.utils.model import EntityProbe, TermInContextRequest, TextRequest, TextResponse

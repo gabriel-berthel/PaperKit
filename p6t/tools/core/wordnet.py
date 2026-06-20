@@ -3,7 +3,7 @@ from nltk.stem import WordNetLemmatizer
 from nltk.wsd import lesk
 from nltk.corpus import wordnet as wn
 
-from p6t.bootsrap import ensure_nltk
+from p6t.tools.bootsrap import ensure_nltk
 
 ensure_nltk()
 

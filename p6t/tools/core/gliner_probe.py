@@ -1,7 +1,7 @@
 from spacy.lang.en import English
 import torch
 
-from p6t.bootsrap import init_gliner
+from p6t.tools.bootsrap import init_gliner
 
 gliner_model = init_gliner()
 
