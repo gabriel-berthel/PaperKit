@@ -1,0 +1,61 @@
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--chip-bg);
+  border-radius: 14px;
+  padding: 4px 10px;
+  font-size: 13px;
+}
+
+.chip .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.chip .remove {
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.chip-add {
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  padding: 4px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.chip-input {
+  border: 1px solid var(--accent);
+  border-radius: 14px;
+  padding: 4px 10px;
+  font-size: 13px;
+  outline: none;
+  min-width: 120px;
+}
+
+.chip-name {
+  white-space: nowrap;
+}
+
+mark[data-type="entity"] {
+  border-radius: 3px;
+  padding: 1px 4px;
+  color: inherit;
+  background: color-mix(in srgb, var(--entity-bg) 35%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--entity-bg) 60%, transparent);
+  font-weight: 500;
+}

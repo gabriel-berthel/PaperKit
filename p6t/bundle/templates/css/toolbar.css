@@ -1,0 +1,79 @@
+#toolbar {
+  position: fixed;
+  top: var(--navbar-height);
+  right: 0;
+  width: var(--toolbar-width);
+  height: calc(100vh - var(--navbar-height));
+  background: #ffffff;
+  border-left: 1px solid var(--border);
+  padding: 16px;
+  overflow-y: auto;
+}
+
+#toolbar section {
+  margin-bottom: 24px;
+}
+
+#toolbar h3 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin: 0 0 8px;
+}
+
+/* undo-redo.css */
+
+#snapshot-history-menu {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 220px;
+  max-width: 320px;
+  max-height: 300px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+#snapshot-history-menu .snapshot-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  cursor: pointer;
+  gap: 8px;
+}
+
+#snapshot-history-menu .snapshot-row:hover {
+  background: #f3f4f6;
+}
+
+#snapshot-history-menu .snapshot-empty {
+  padding: 8px 12px;
+  color: #888;
+}
+
+#snapshot-history-menu .snapshot-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#snapshot-history-menu .snapshot-delete {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #999;
+  padding: 0 2px;
+  line-height: 1;
+}
+
+#snapshot-history-menu .snapshot-delete:hover {
+  color: #e11d48;
+}

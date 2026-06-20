@@ -1,0 +1,36 @@
+.block-actions {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 99999;
+  pointer-events: all;
+  transform: translateY(-50%);
+}
+
+.block-actions button {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: white;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.block-actions button:hover {
+  background: #1a1a1a;
+  color: white;
+  border-color: transparent;
+}
+
+[data-type="paragraph"],
+[data-type="bullet"] {
+  position: relative;
+}
