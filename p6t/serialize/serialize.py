@@ -125,7 +125,8 @@ def serialize_text(ir_nodes):
         parts.append("")
 
     return "\n".join(parts)
-    
+
+ 
 def serialize_json(ir_nodes):
     items = []
 
