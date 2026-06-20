@@ -57,8 +57,8 @@
     <div id="pre-content"></div>
 
     <div id="app-content">
-        <h1 class="special-title">{{ document.title }}</h1>
-        {% for el in document.elements %}
+        <h1 class="special-title">{{ title }}</h1>
+        {% for el in elements %}
             {%- include "partials/_element.jinja" %}
         {%- endfor %}
     </div>
@@ -71,7 +71,7 @@
 </div>
 
 <div id="prefetch" style="display:none">
-    {% for id, caption in document.refs.items() %}
+    {% for id, caption in refs.items() %}
     <span data-type="caption" data-identifier="{{ id }}">{{ caption }}</span>
     {% endfor %}
 </div>

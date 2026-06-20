@@ -61,7 +61,7 @@ class IRTree:
         
         return root
     
-    def flat(self, root: "IRTree" = None):
+    def flat(self, root: "IRTree" = None) -> list["IRTree"]:
         
         if not root:
             return self.flat(self)

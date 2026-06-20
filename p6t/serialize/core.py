@@ -4,7 +4,7 @@ from p6t.model.dto.ir_nodes import IRHeader, IRListItem, IRParagraph
 from p6t.model.normalized_document import NormalizedDocument
 
 
-def flatten_elements(normalized_document: NormalizedDocument):
+def flatten_elements(normalized_document: NormalizedDocument, resolve_refs=True):
     
     items = []
     
@@ -24,7 +24,8 @@ def flatten_elements(normalized_document: NormalizedDocument):
             items.append(item)
             
             lower_txt = item.text.lower()
-            if isinstance(item, IRParagraph|IRListItem):
+            
+            if resolve_refs and isinstance(item, IRParagraph|IRListItem):
                 
                 # Adding footnotes as paragraphs
                 for identifier in footnotes.keys():
@@ -37,10 +38,9 @@ def flatten_elements(normalized_document: NormalizedDocument):
                     if text_ref in lower_txt:
                         items.append(refs[text_ref])
                         del refs[text_ref]
-                
-                        
+                    
     return items
             
-def _image_to_data_uri(image_bytes, mime="image/png"):
+def image_to_data_uri(image_bytes, mime="image/png"):
     encoded = base64.b64encode(image_bytes).decode("utf-8")
     return f"data:{mime};base64,{encoded}"

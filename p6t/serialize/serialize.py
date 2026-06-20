@@ -3,7 +3,7 @@
 import json
 import html
 from p6t.model.dto.ir_nodes import IRCode, IRFormula, IRHeader, IRListItem, IRParagraph, IRFigure, IRTable
-from p6t.serialize.core import _image_to_data_uri
+from p6t.serialize.core import image_to_data_uri
 
 def serialize_html(ir_nodes):
     parts = [
@@ -33,7 +33,7 @@ def serialize_html(ir_nodes):
             parts.append(f"<h{item.level}>{html.escape(item.text)}</h{item.level}>")
 
         elif isinstance(item, (IRTable, IRFigure)):
-            src = _image_to_data_uri(item.image)
+            src = image_to_data_uri(item.image)
 
             parts.append("<figure>")
             parts.append(f"<img src='{src}' />")
@@ -130,9 +130,20 @@ def serialize_text(ir_nodes):
 def serialize_json(ir_nodes):
     items = []
 
+    label_map = {
+        'IRHeader': 'heading',
+        'IRCode': 'code',
+        'IRFormula': 'formula',
+        'IRListItem': 'bullet',
+        'IRParagraph': 'paragraph',
+        'IRFootnote': 'footnote',
+        'IRTable': 'table',
+        'IRFigure': 'figure'
+    }
+
     for item in ir_nodes:
         items.append({
-            "type": item.__class__.__name__,
+            "type": label_map[item.__class__.__name__],
             "content": getattr(item, "text", None)
                       or getattr(item, "caption", None)
                       or "",
