@@ -1,8 +1,5 @@
-from typing import List
 from surya.inference import SuryaInferenceManager
 from surya.recognition import RecognitionPredictor
-from surya.layout import LayoutPredictor
-from typing import List
 from PIL.Image import Image as PILImage
 
 class SuryaLatexOCR():
@@ -16,7 +13,7 @@ class SuryaLatexOCR():
 
         return cls._instance
 
-    def run_single_block(self, images: List[PILImage]) -> List[str]:
+    def run_single_block(self, images: list[PILImage]) -> list[str]:
         predictions = self.predictor(images)
 
         return [

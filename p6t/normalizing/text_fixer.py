@@ -1,25 +1,17 @@
 
 import re
 import pysbd
-from p6t.normalizing.core.text_cleaner import TextCleaner
+from p6t.bootsrap import ensure_nltk
+from p6t.normalizing.text_cleaner import TextCleaner
 from deepmultilingualpunctuation import PunctuationModel  
 import language_tool_python
 from nltk.corpus import words
-
-def ensure_nltk():
-    import nltk
-    try:
-        nltk.data.find("words")
-    except LookupError:
-        nltk.download("words", quiet=True)
-
 
 tool = language_tool_python.LanguageTool('en-US')
 seg = pysbd.Segmenter(language="en", clean=False, doc_type=None)
 
 ensure_nltk()
 word_set = set(words.words())
-
 punctuation_model = PunctuationModel()
 
 

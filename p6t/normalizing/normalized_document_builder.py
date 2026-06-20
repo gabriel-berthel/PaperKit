@@ -8,9 +8,9 @@ from p6t.model.source_document import SourceDocument
 from p6t.model.normalized_document import NormalizedDocument
 from p6t.model.parsed_document import ParsedDocument
 from p6t.model.dto.ir_tree import IRTree
-from p6t.normalizing.core.media_resolver import MediaResolver
-from p6t.normalizing.core.text_cleaner import TextCleaner
-from p6t.normalizing.core.text_fixer import TextFixer
+from p6t.normalizing.media_resolver import MediaResolver
+from p6t.normalizing.text_cleaner import TextCleaner
+from p6t.normalizing.text_fixer import TextFixer
 
 def is_abtract(heading: str) -> bool: 
     return "abstract" in heading.lower()

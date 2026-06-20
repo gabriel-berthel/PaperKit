@@ -3,8 +3,8 @@
 from p6t.db.db import push
 from p6t.model.parsed_document import ParsedDocument
 from p6t.model.source_document import SourceDocument
-from p6t.parsing.core.docling_converter import DoclingConverter
-from p6t.parsing.core.ocr import SuryaLatexOCR
+from p6t.parsing.docling_converter import DoclingConverter
+from p6t.parsing.ocr import SuryaLatexOCR
 from docling_core.types.doc import DoclingDocument
 import pickle
 from pathlib import Path

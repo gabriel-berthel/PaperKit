@@ -8,7 +8,7 @@ import pickle
 
 
 from p6t.model.parsed_document import ParsedDocument
-from p6t.normalizing.core.normalized_document_builder import NormalizedDocumentBuilder
+from p6t.normalizing.normalized_document_builder import NormalizedDocumentBuilder
 
 def normalize_document(parsed_document: ParsedDocument) -> NormalizedDocument:
     print("Building Normalized")
