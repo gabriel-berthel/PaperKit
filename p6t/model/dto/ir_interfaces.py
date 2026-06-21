@@ -46,7 +46,7 @@ class IRMediaAnchor():
         number = int(m.group(2))
         
         return {'label': label.lower(), 'number': number}
-     
+
     def __init__(self, img, caption):
         self.img = img
         self.caption = caption

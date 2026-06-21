@@ -10,12 +10,12 @@ import pickle
 from pathlib import Path
 import os
 
-SURYA_BATCH_SIZE = int(os.getenv("SURYA_BATCH_SIZE", "8"))
+SURYA_BATCH_SIZE = int(os.getenv("SURYA_BATCH_SIZE", "16"))
 
 converter = DoclingConverter()
 surya = SuryaLatexOCR()
 
-def parse_document(file_path) -> ParsedDocument:
+def parse_document(file_path, batch_size=8, skip_ocr=False) -> ParsedDocument:
     """
     1: Creates source document representation (saving every page)
     2: Parse PDF with docling (no OCR, Formula + Code Enrichment)
@@ -29,30 +29,30 @@ def parse_document(file_path) -> ParsedDocument:
     docling_document: DoclingDocument = converter.parse(file_path)
 
     items = []
+    if not skip_ocr:
+        print("Collecting textual element crops")
+        for element, _ in docling_document.iterate_items():
+            if element.label in ["caption", "text", "list_item", "footnote"]:
+                bbox = element.prov[0].bbox
+                page_no = element.prov[0].page_no
 
-    print("Collecting textual element crops")
-    for element, _ in docling_document.iterate_items():
-        if element.label in ["caption", "text", "list_item", "footnote"]:
-            bbox = element.prov[0].bbox
-            page_no = element.prov[0].page_no
+                crop = source_document.resize_max_2048(source_document.crop(page_no, bbox))
+                items.append((element, crop))
 
-            crop = source_document.resize_max_2048(source_document.crop(page_no, bbox))
-            items.append((element, crop))
+        print("Running surya OCR on textual elements")
+        for i in range(0, len(items), batch_size):
+            batch = items[i:i + batch_size]
+            crops = [crop for _, crop in batch]
+            print(f"Re-OCRing {i + 1} / {len(items)}")
+            results = surya.run_single_block(crops)
 
-    print("Running surya OCR on textual elements")
-    for i in range(0, len(items), SURYA_BATCH_SIZE):
-        batch = items[i:i + SURYA_BATCH_SIZE]
-        crops = [crop for _, crop in batch]
-
-        results = surya.run_single_block(crops)
-
-        # Mutating elements
-        for (element, _), text in zip(batch, results):
-            element.text = text
+            # Mutating elements
+            for (element, _), text in zip(batch, results):
+                element.text = text
 
     return ParsedDocument(source_document, docling_document)
 
-def parse_and_push(pdf_path):
-    parsed_document: ParsedDocument = parse_document(pdf_path)
+def parse_and_push(pdf_path, batch_size=8, skip_ocr=False):
+    parsed_document: ParsedDocument = parse_document(pdf_path, batch_size, skip_ocr)
     db_push(parsed_document.source_document.pdf_hash, 'parsing', parsed_document)
     return parsed_document

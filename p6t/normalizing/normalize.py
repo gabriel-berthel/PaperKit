@@ -25,17 +25,6 @@ def normalize_and_push(parsed_document: ParsedDocument) -> NormalizedDocument:
 
     print("Normalizing document content")
     normalized_document: NormalizedDocument = normalize_document(parsed_document)
-
-    output_path = Path(output_path)
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    file_path = output_path / f"{output_name}.pkl"
-
-    print(f"Saving pickled document to {file_path}")
-
-    with open(file_path, "wb") as f:
-        pickle.dump(normalized_document, f, protocol=pickle.HIGHEST_PROTOCOL)
-
-    print("Done")
+    file_path = db_push(parsed_document.source_document.pdf_hash, 'normalizing', normalized_document)
 
     return file_path

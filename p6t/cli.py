@@ -24,7 +24,7 @@ def cmd_register(args):
 
         if answer in {"y", "yes"}:
             print("Parsing...")
-            parsed_document = parse_and_push(pdf_path)
+            parsed_document = parse_and_push(pdf_path, args.batch, args.skip_ocr)
         else:
             print("Using existing parsed document.")
 
@@ -34,7 +34,7 @@ def cmd_register(args):
         else:
             print("Parsing...")
 
-        parsed_document = parse_and_push(pdf_path)
+        parsed_document = parse_and_push(pdf_path, args.batch, args.skip_ocr)
 
     print("Normalizing...")
     normalized_document = normalize_and_push(parsed_document)
@@ -167,19 +167,42 @@ def main():
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # Register
+    parser = argparse.ArgumentParser(prog="p6t")
+
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # Register
     register_parser = subparsers.add_parser(
         "register",
         help="Register document: parse and normalize the pdf"
     )
+
     register_parser.add_argument(
         "pdf",
         help="Path to the PDF file"
     )
+
     register_parser.add_argument(
         "--force",
         action="store_true",
         help="Reparse the document without prompting"
-    ) 
+    )
+
+    # NEW: skip OCR flag (default False)
+    register_parser.add_argument(
+        "--skip-ocr",
+        action="store_true",
+        help="Skip OCR step (default: False)"
+    )
+
+    # batch size (default 8)
+    register_parser.add_argument(
+        "--batch",
+        type=int,
+        default=8,
+        help="Batch size for processing (default: 8)"
+    )
+
     register_parser.set_defaults(func=cmd_register)
 
     # Serialize

@@ -9,11 +9,6 @@ from p6t.model.normalized_document import NormalizedDocument
 from p6t.serialize.core import flatten_elements
 from p6t.serialize.serialize import serialize_json
 
-def sluggify(title: str):
-    title = title.lower().strip()
-    title = title.replace(" ", "-")
-    return title
-
 def load_index_template():
     templates_dir = Path("p6t/bundle/templates")
     env = Environment(loader=FileSystemLoader(templates_dir))
@@ -55,7 +50,21 @@ def get_and_save_refs(normalized_document: NormalizedDocument, media_path):
 
     return refs
 
+def bundle_statis_files(output_path):
+    # Copying js into bundle
+    print("Bunding scripts")
+    js_src = Path("p6t/bundle/templates/js")
+    js_dst = output_path / "js"
+    shutil.copytree(js_src, js_dst, dirs_exist_ok=True)
+
+    # Copying css into bundle
+    print("Bunding styles")
+    css_src = Path("p6t/bundle/templates/css")
+    css_dst = output_path / "css"
+    shutil.copytree(css_src, css_dst, dirs_exist_ok=True)
+    
 def export_document(normalized_document: NormalizedDocument, output_folder):
+    
     index = load_index_template()
     section_elements = get_section_elements(normalized_document)
     
@@ -76,16 +85,7 @@ def export_document(normalized_document: NormalizedDocument, output_folder):
             references=normalized_document.references
         ))
 
-    # Copying js into bundle
-    print("Bunding scripts")
-    js_src = Path("p6t/bundle/templates/js")
-    js_dst = output_path / "js"
-    shutil.copytree(js_src, js_dst, dirs_exist_ok=True)
-
-    # Copying css into bundle
-    print("Bunding styles")
-    css_src = Path("p6t/bundle/templates/css")
-    css_dst = output_path / "css"
-    shutil.copytree(css_src, css_dst, dirs_exist_ok=True)
+    # Bundling JS / CSS files
+    bundle_statis_files()
     
     return output_path

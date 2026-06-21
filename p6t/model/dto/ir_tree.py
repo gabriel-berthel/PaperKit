@@ -35,8 +35,7 @@ class IRTree:
                 return match.group(1), match.group(2)
             return None, text
         
-        root = IRTree(items=None, number_raw=None,
-                           number_parts=None, title=None, level=0)
+        root = IRTree(items=None, number_raw=None, number_parts=None, title=None, level=0)
         
         stack = [root]
         for raw in sections:

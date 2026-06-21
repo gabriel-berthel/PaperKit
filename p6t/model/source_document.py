@@ -5,6 +5,11 @@ from io import BytesIO
 import hashlib
 
 class SourceDocument:
+    """
+    PDF utility for easy cropping downstream.
+    
+    """
+    
     
     @staticmethod
     def hash_doc(path):
