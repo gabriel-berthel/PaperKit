@@ -144,9 +144,9 @@ def serialize_json(ir_nodes):
     for item in ir_nodes:
         items.append({
             "type": label_map[item.__class__.__name__],
-            "content": getattr(item, "text", None)
-                      or getattr(item, "caption", None)
-                      or "",
+            "content": getattr(item, "text", None) 
+            or getattr(item, "caption", None)
+            or "",
             "level": getattr(item, "level", 0) 
         })
 

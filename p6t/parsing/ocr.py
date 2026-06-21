@@ -1,3 +1,5 @@
+import os
+
 from surya.inference import SuryaInferenceManager
 from surya.recognition import RecognitionPredictor
 from PIL.Image import Image as PILImage
@@ -7,6 +9,7 @@ class SuryaLatexOCR():
 
     def __new__(cls):
         if cls._instance is None:
+            os.environ["SURYA_INFERENCE_KEEP_ALIVE"] = "1"
             cls._instance = super().__new__(cls)
             manager = SuryaInferenceManager() # auto-spawns vllm or llama-server
             cls._instance.predictor = RecognitionPredictor(manager)

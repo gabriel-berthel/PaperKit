@@ -56,25 +56,3 @@ def parse_and_push(pdf_path):
     parsed_document: ParsedDocument = parse_document(pdf_path)
     db_push(parsed_document.source_document.pdf_hash, 'parsing', parsed_document)
     return parsed_document
-
-def parse_and_pickle(pdf_path, output_path, output_name):
-    """
-    Parses a PDF into a ParsedDocument (Docling Document + SourceDocument) and saves it as a pickle file.
-    """
-
-    print("Parsing document + OCR")
-    parsed_document: ParsedDocument = parse_document(pdf_path)
-
-    output_path = Path(output_path)
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    file_path = output_path / f"{output_name}.pkl"
-
-    print(f"Saving pickled document to {file_path}")
-
-    with open(file_path, "wb") as f:
-        pickle.dump(parsed_document, f, protocol=pickle.HIGHEST_PROTOCOL)
-
-    print("Done")
-
-    return file_path
