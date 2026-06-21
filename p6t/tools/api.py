@@ -137,7 +137,7 @@ async def simplify_wording(payload: TextRequest) -> TextResponse:
 
 
 @router.post("/simplify/caption")
-async def inline_all_formulas(payload: TextRequest) -> TextResponse:
+async def simplify_caption_content(payload: TextRequest) -> TextResponse:
     return TextResponse(
         text=await llm_simple_task(payload.text, "Summarize caption text for readability.")
     )
@@ -145,7 +145,7 @@ async def inline_all_formulas(payload: TextRequest) -> TextResponse:
 
 @router.post("/simplify/code")
 async def simplify_code(payload: TextRequest) -> TextResponse:
-    instruction = "Explain what this code does in simple spoken English."
+    instruction = "Briefly describe what this code block does in natural spoken English, as if explaining it out loud to someone listening."
 
     simplified = await llm_simple_task(payload.text, instruction)
 
