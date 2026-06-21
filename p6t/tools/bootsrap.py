@@ -2,11 +2,8 @@
 
 import logging
 from functools import lru_cache
-import os
 from pathlib import Path
 import subprocess
-
-from piper import PiperVoice
 
 log = logging.getLogger("init_warmup")
 logging.basicConfig(level=logging.INFO)
@@ -71,7 +68,7 @@ def get_summarizer():
 def init_surya():
     from surya.inference import SuryaInferenceManager
     from surya.recognition import RecognitionPredictor
-
+    
     manager = SuryaInferenceManager()
     predictor = RecognitionPredictor(manager)
     return predictor
@@ -137,7 +134,7 @@ def init_piper(voice):
     """
     Warm up Piper TTS voice models.
     """
-
+    from piper import PiperVoiceà
     model_path = Path(f"voices/{voice}.onnx")
     config_path = Path(f"voices/{voice}.onnx.json")
     return PiperVoice.load(model_path, config_path=config_path)
@@ -150,7 +147,7 @@ def init_llama32():
 # ----------------------------
 # Master initializer
 # ----------------------------
-def init_all():
+def boostrap_project_librairies():
     """
     Call this once at startup to:
     - download NLTK data
@@ -186,3 +183,5 @@ def init_all():
     init_llama32()
 
     log.info("Initialization complete.")
+
+boostrap_project_librairies()
