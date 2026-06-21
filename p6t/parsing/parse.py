@@ -9,11 +9,8 @@ from docling_core.types.doc import DoclingDocument
 import pickle
 from pathlib import Path
 import os
-import logging
 
 SURYA_BATCH_SIZE = int(os.getenv("SURYA_BATCH_SIZE", "8"))
-
-logging.basicConfig(level=logging.INFO)
 
 converter = DoclingConverter()
 surya = SuryaLatexOCR()

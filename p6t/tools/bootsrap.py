@@ -1,18 +1,15 @@
 # init_warmup.py
-
-import logging
 from functools import lru_cache
 from pathlib import Path
 import subprocess
+import logging
 
-log = logging.getLogger("init_warmup")
-logging.basicConfig(level=logging.INFO)
+log = logging.getLogger()
+logging.disable(logging.ERROR)
 
 
-# ----------------------------
-# NLTK bootstrap
-# ----------------------------
 def ensure_nltk():
+    print(f"Ensuring NLTK ressources")
     import nltk
 
     resources = {
@@ -26,7 +23,6 @@ def ensure_nltk():
         try:
             nltk.data.find(path)
         except LookupError:
-            log.info(f"Downloading NLTK resource: {name}")
             nltk.download(name, quiet=True)
 
 # ----------------------------
@@ -34,24 +30,28 @@ def ensure_nltk():
 # ----------------------------
 @lru_cache(maxsize=1)
 def get_embedding_model():
+    print("Init: all-MiniLM-L6-v2")
     from sentence_transformers import SentenceTransformer
     return SentenceTransformer("all-MiniLM-L6-v2")
 
 
 @lru_cache(maxsize=1)
 def get_reranker():
+    print("Init: cross-encoder/ms-marco-MiniLM-L-6-v2")
     from sentence_transformers import CrossEncoder
     return CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
 
 
 @lru_cache(maxsize=1)
 def get_bart_pipeline():
+    print("Init: facebook/bart-large-cnn")
     from transformers import pipeline
     return pipeline("summarization", model="facebook/bart-large-cnn")
 
 
 @lru_cache(maxsize=1)
 def get_summarizer():
+    print("Init: Sumy/LSA-Summurizer")
     from sumy.summarizers.lsa import LsaSummarizer
     from sumy.nlp.stemmers import Stemmer
     from sumy.utils import get_stop_words
@@ -61,11 +61,9 @@ def get_summarizer():
     return summarizer
 
 
-# ----------------------------
-# Heavy model singletons
-# ----------------------------
 @lru_cache(maxsize=1)
 def init_surya():
+    print("Init: SuryaOCR")
     from surya.inference import SuryaInferenceManager
     from surya.recognition import RecognitionPredictor
     
@@ -75,21 +73,25 @@ def init_surya():
 
 @lru_cache(maxsize=1)
 def init_gliner():
+    print("Init: fastino/gliner2-base-v1")
     from gliner2 import GLiNER2
     return GLiNER2.from_pretrained("fastino/gliner2-base-v1")
 
 @lru_cache(maxsize=1)
 def init_spacy():
+    print("Init: Spacy")
     from spacy.lang.en import English
     return English()
 
 @lru_cache(maxsize=1)
 def init_tooling():
+    print("Init: LanguageToolPython")
     import language_tool_python
     return language_tool_python.LanguageTool("en-US")
 
 @lru_cache(maxsize=1)
 def init_segmentation():
+    print("Init: pysbd")
     import pysbd
     return pysbd.Segmenter(language="en", clean=False, doc_type=None)
 
@@ -98,16 +100,14 @@ def init_wordset():
     from nltk.corpus import words
     return set(words.words())
 
-# ----------------------------
-# Docling pre-download
-# ----------------------------
+
 def download_docling_models():
     """
     Pre-download Docling models using CLI tool.
     Safe to run at startup.
     """
     try:
-        log.info("Downloading Docling models via CLI...")
+        print("Downloading Docling models via CLI...")
 
         subprocess.run(
             ["docling-tools", "models", "download"],
@@ -117,7 +117,7 @@ def download_docling_models():
             text=True,
         )
 
-        log.info("Docling models download complete.")
+        print("Docling models download complete.")
 
     except FileNotFoundError:
         log.warning("docling-tools not found in PATH. Skipping download step.")
@@ -127,26 +127,28 @@ def download_docling_models():
         log.error(e.stderr)
 
 
-# ----------------------------
-# Piper
-# ----------------------------  
 def init_piper(voice):
     """
     Warm up Piper TTS voice models.
     """
-    from piper import PiperVoiceà
+    from piper import PiperVoice
     model_path = Path(f"voices/{voice}.onnx")
     config_path = Path(f"voices/{voice}.onnx.json")
     return PiperVoice.load(model_path, config_path=config_path)
 
 def init_llama32():
     import ollama
+    subprocess.run(
+            ["ollama", "server"],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+    )
     ollama.pull("llama3.2")
     
 
-# ----------------------------
-# Master initializer
-# ----------------------------
+# Master init
 def boostrap_project_librairies():
     """
     Call this once at startup to:
@@ -155,7 +157,7 @@ def boostrap_project_librairies():
     - preload heavy singletons
     """
 
-    log.info("Starting global initialization...")
+    print("Starting global initialization...")
 
     ensure_nltk()
 
@@ -182,6 +184,4 @@ def boostrap_project_librairies():
     # Dowloading llama3.2
     init_llama32()
 
-    log.info("Initialization complete.")
-
-boostrap_project_librairies()
+    print("Initialization complete.")
