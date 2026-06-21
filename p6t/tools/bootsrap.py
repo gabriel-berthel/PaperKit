@@ -142,6 +142,11 @@ def init_piper(voice):
     config_path = Path(f"voices/{voice}.onnx.json")
     return PiperVoice.load(model_path, config_path=config_path)
 
+def init_llama32():
+    import ollama
+    ollama.pull("llama3.2")
+    
+
 # ----------------------------
 # Master initializer
 # ----------------------------
@@ -176,5 +181,8 @@ def init_all():
     
     # All the docling model
     download_docling_models()
+    
+    # Dowloading llama3.2
+    init_llama32()
 
     log.info("Initialization complete.")

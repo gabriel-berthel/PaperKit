@@ -19,24 +19,19 @@ def _resolve_location(location: str) -> tuple[Path, str]:
     version = DB_CONFIG["versions"][location]
     return folder, version
 
+def db_push(hash: str, location: str, value):
 
-def _hash_key(name: str) -> str:
-    return hashlib.sha256(name.encode("utf-8")).hexdigest()[:16]
-
-
-def push(name: str, location: str, value):
-
-    print(f"Pushing {name} to {location}")
+    print(f"Pushing {hash} to {location}")
 
     _ensure_init()
     folder, version = _resolve_location(location)
 
-    key = _hash_key(name)
+    key = hash
     filename = f"{key}:{version}.pkl"
     path = folder / filename
 
     data = {
-        "name": name,
+        "name": hash,
         "location": location,
         "version": version,
         "data": value,
@@ -47,12 +42,17 @@ def push(name: str, location: str, value):
 
     return path  # optional, useful for debugging
 
+def hash_doc(path):
+    with open(path, "rb") as f:
+        pdf_bytes = f.read()
+        
+    return hashlib.sha256(pdf_bytes).hexdigest()
 
-def get(name: str, location: str):
+def db_get(pdf_path, location: str):
     _ensure_init()
     folder, version = _resolve_location(location)
 
-    key = _hash_key(name)
+    key = hash_doc(pdf_path)
     path = folder / f"{key}:{version}.pkl"
 
     if not path.exists():

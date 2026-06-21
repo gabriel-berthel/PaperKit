@@ -1,6 +1,6 @@
 
 
-from p6t.persistance.db import push
+from p6t.persistance.db import db_push
 from p6t.model.parsed_document import ParsedDocument
 from p6t.model.source_document import SourceDocument
 from p6t.parsing.docling_converter import DoclingConverter
@@ -57,7 +57,8 @@ def parse_document(file_path) -> ParsedDocument:
 
 def parse_and_push(pdf_path):
     parsed_document: ParsedDocument = parse_document(pdf_path)
-    push(parsed_document.source_document.pdf_hash, 'parsing', parsed_document)
+    db_push(parsed_document.source_document.pdf_hash, 'parsing', parsed_document)
+    return parsed_document
 
 def parse_and_pickle(pdf_path, output_path, output_name):
     """

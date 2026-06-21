@@ -2,8 +2,11 @@ import json
 
 import httpx
 from pylatexenc.latex2text import LatexNodes2Text
+from ollama import AsyncClient
 
-from p6t.tools.conf import settings
+from p6t.tools.bootsrap import init_llama32
+
+init_llama32()
 
 timeout = httpx.Timeout(
     connect=10.0,
@@ -16,26 +19,16 @@ texer = LatexNodes2Text()
 client = httpx.AsyncClient()
 
 async def ask_llm(system: str, user: str):
-    
-    payload = {
-        "model": settings.llm_model,
-        "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": user}
-        ],
-        "stream": False,
-        "format": 'json'
-    }
-
-    async with httpx.AsyncClient(timeout=timeout) as client:
-        response = await client.post(settings.llm_url, json=payload)
+    response = await AsyncClient().chat(model='llama3.2', 
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": user}
+        ],format="json")
 
     try:
-        data = json.loads(response.content.decode())
-        print(data)
-        return json.loads(data["message"]["content"])
+        return json.loads(response.message.content)
     except Exception:
-        return {"error": "Invalid LLM response", "raw": response.content.decode()}
+        return {"error": "Invalid LLM response", "raw": response}
 
 
 async def llm_simple_task(user, instr=str):

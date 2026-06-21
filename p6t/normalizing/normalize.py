@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from p6t.persistance.db import push
+from p6t.persistance.db import db_push
 from p6t.model.normalized_document import NormalizedDocument
 import pickle
 
@@ -17,7 +17,7 @@ def normalize_document(parsed_document: ParsedDocument) -> NormalizedDocument:
 
 def normalize_and_push(parsed_document: ParsedDocument) -> NormalizedDocument:
     normalized_document = normalize_document(parsed_document)
-    push(parsed_document.source_document.pdf_hash, 'normalizing', normalized_document)
+    db_push(parsed_document.source_document.pdf_hash, 'normalizing', normalized_document)
 
 def normalize_and_pickle(parsed_document, output_path, output_name):
     """

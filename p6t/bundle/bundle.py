@@ -55,12 +55,11 @@ def get_and_save_refs(normalized_document: NormalizedDocument, media_path):
 
     return refs
 
-def export_document(normalized_document: NormalizedDocument, output_base="./db/bundles/"):
-    title = normalized_document.document_title
+def export_document(normalized_document: NormalizedDocument, output_folder):
     index = load_index_template()
     section_elements = get_section_elements(normalized_document)
     
-    output_path = Path(os.path.join(output_base, sluggify(title)))
+    output_path = Path(os.path.join(output_folder))
     output_path.mkdir(parents=True, exist_ok=True)
     
     media_path = output_path / "media"
