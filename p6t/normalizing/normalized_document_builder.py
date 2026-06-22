@@ -385,6 +385,9 @@ class NormalizedDocumentBuilder:
         # Removing leading bullet marker
         text = TextCleaner.clean_bullet_text(text)
         
+        # Emoticons that weren't ocred.
+        text = re.sub(r'(\s+)', '', text)  
+        
         text = re.sub(r'\s+', ' ', text).strip()
         
         return text.strip()

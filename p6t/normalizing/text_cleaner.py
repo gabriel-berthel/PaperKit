@@ -78,6 +78,7 @@ class TextCleaner:
 
         # protect commands with one {...} argument
         
+        latex = re.sub(r'\\[a-zA-Z]+\{[^{}]*\}', save, latex)
         latex = re.sub(r'\\[a-zA-Z]+', save, latex)
         latex = re.sub(r' ', '', latex)
 
@@ -188,7 +189,7 @@ class TextCleaner:
 
     @staticmethod
     def clean_bullet_text(s: str) -> str:
-        bullet_chars = "•*-–—-"  # add or remove chars as needed
+        bullet_chars = "•*-–—-·"  # add or remove chars as needed
         return s.strip().lstrip(bullet_chars)
 
     @staticmethod
