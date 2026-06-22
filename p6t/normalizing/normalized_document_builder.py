@@ -62,14 +62,22 @@ class NormalizedDocumentBuilder:
             
     def _collect_sections(self) -> list[list]:
         filtered = [e for e, _ in self.docling_document.iterate_items() if e.label in ['text', 'formula', 'section_header', 'list_item', 'code']]
+                
+        # Looking for abtract to start collection
+        start_idx = next(
+            (i for i, s in enumerate(filtered) if is_abtract(s.text)),
+            0
+        )
         
         sections = []
         curr_section = []
-        for element in filtered:        
+        for element in filtered[start_idx:]:   
             if element.label == "section_header":
                 if curr_section:
                     sections.append(curr_section)
-                    curr_section = [element]
+
+                curr_section = [element]
+                    
             else:
                 curr_section.append(element)
         
@@ -87,17 +95,22 @@ class NormalizedDocumentBuilder:
                 starting_element = 1
                 section_node: IRSection = IRSection.build(e[0])
             else:
-                starting_element = 0
                 heading, text = TextFixer.extract_heading(e[0].text)
                 
                 # If an heading is extracted
                 # We mutate the element content to only keep the paragraph
                 if heading:
                     section_node: IRSection = IRSection(heading)
-                    e[0].text = text
                 else: 
                     section_node = IRSection("[SECTION]")
-
+                
+                # Paragraph was a header
+                if text:
+                    starting_element = 0
+                    e[0].text = text
+                else:
+                    starting_element = 1
+            
             # Build IRNodes
             for children in e[starting_element:]:
                 if children.label == 'text':
@@ -115,16 +128,10 @@ class NormalizedDocumentBuilder:
             
             section_nodes.append(section_node)
     
-        # Looking for abtract to start collection
-        start_idx = next(
-            (i for i, s in enumerate(section_nodes)if is_abtract(s.text)),
-            0
-        )
-
         # Discarding reference section & empty sections
         filtered_sections = [s for s in section_nodes if not is_biblio(s.text) and not len(s.items) == 0 ]
 
-        return filtered_sections[start_idx:]
+        return filtered_sections
 
     
     # PACKING & DISCARDING
@@ -134,16 +141,13 @@ class NormalizedDocumentBuilder:
         
         for element in elements:
             if isinstance(element, IRParagraph):
-                
                 heading_output = TextFixer.extract_heading(element.text)
                 
                 heading, paragraph = heading_output
                 
                 if heading:
                     self.log(f'New section heading discovered: {heading}', 3)
-                    
                     fixed.append(IRHeader(heading))
-                    
                 if paragraph:
                     fixed.append(IRParagraph(paragraph))
                     
@@ -213,6 +217,39 @@ class NormalizedDocumentBuilder:
 
         return [element for element in elements if not hasattr(element, 'to_delete')]
     
+    def _group_forward_formula(self, elements):
+        """
+        Hardcoded heuristics to restore text continuity around identifiable structures.
+        Currently handles: Paragraph → [Floating 'Algorithm' + 'Code'] → Paragraph.
+        Should be extended as new patterns are encountered.
+        """
+            
+        i = 0
+        while i < len(elements):
+            if (
+                i + 2 < len(elements)
+                and isinstance(elements[i], IRParagraph)
+                and isinstance(elements[i+1], IRFormula)
+                and isinstance(elements[i+2], IRParagraph)
+            ):  
+
+                real_p_first = elements[i].text
+                formula_el = elements[i+1].text
+                real_p_next = elements[i+2].text
+                
+                
+                if (real_p_first.rstrip()[-1] not in ".!?" 
+                    and real_p_next[0].islower() or real_p_next[0] in ('(', ')', ',', '[', ']')
+                ):
+                    elements[i].text = real_p_first + " " + real_p_next
+                    elements[i+2].to_delete = True
+   
+            i += 1
+
+        return [element for element in elements if not hasattr(element, 'to_delete')]
+    
+    
+    
     
     def _discard_unknown_text(self, elements):
         """
@@ -269,6 +306,7 @@ class NormalizedDocumentBuilder:
                     prev.text += curr.text.lstrip()
                     
                     grouped.pop(i)
+                    i -= 1
                     continue
                 
                 # Paragraph is a lowercase continuation
@@ -284,8 +322,9 @@ class NormalizedDocumentBuilder:
                     self.log('Lower case continuation found', 1)
                     prev.text += " " + curr.text
                     grouped.pop(i)
-                    
-                    
+                    i -= 1
+                    continue
+                            
             i -= 1
 
         return grouped
@@ -302,25 +341,29 @@ class NormalizedDocumentBuilder:
     
     def log(self, log, level=None):
         print(f'{' ' * level if level else ''}{log}')
-       
+
     def run_and_log_transformation(self, fn_input, fn, log='', level=0):
         fixed = fn(fn_input)
         
         if log and fixed != fn_input:
             self.log(log, level)
-      
+
         return fixed 
     
     def clean_text(self, text):
+        before = text
         # Normalize Unicode Chars
         text = TextCleaner.unify_unicor_chars(text)
         
         # Unifying spacing
         text = TextCleaner.unify_spacing(text)
         
+        # Removing unecessary LaTex formatting
+        text = TextCleaner.remove_latex_formatting(text)
+        
         # Converting to Ascii and using $ instead of math tags.
         text = TextCleaner.normalize_inlined_maths(text)
-        
+
         # Foonote normalisation
         text = TextCleaner.textify_footnotes(text)
         
@@ -332,13 +375,10 @@ class NormalizedDocumentBuilder:
 
         # Fixing bracked refs.
         text = TextCleaner.fix_and_collapse_bracket_ref(text)
-        
-        # Removing unecessary LaTex formatting
-        text = TextCleaner.remove_latex_formatting(text)
-
+    
         # Fixing broken words
         text = TextFixer.fix_lowercase_broken_boudaries(text)
-
+        
         # Fixing hyphenation
         text = TextFixer.fix_hyphen(text)
         
@@ -346,7 +386,7 @@ class NormalizedDocumentBuilder:
         text = TextCleaner.clean_bullet_text(text)
         
         text = re.sub(r'\s+', ' ', text).strip()
-
+        
         return text.strip()
 
     def clean_footnote(self, orig, surya):
@@ -361,8 +401,15 @@ class NormalizedDocumentBuilder:
     def clean_formula(self, text):
         text = TextCleaner.remove_html_tags(text)
         text = TextCleaner.remove_latex_formatting(text)
+        text = TextCleaner.crush_latex_spaces(text)
         text = TextCleaner.format_latex_alignment(text)
-        text = re.sub(' ', '', text)
+        
+        # This is seems to be related to CodeFormulaV2
+        text = text.rstrip('\\..')
+        text = text.rstrip('\\,,')
+        text = text.rstrip('\\,.')
+        text = text.rstrip('\\.,')
+        
         return text
 
 
@@ -376,49 +423,56 @@ class NormalizedDocumentBuilder:
         # - Broken OCR wording is repaired
         # - Broken OCR boundaries (missing punct) are repaired.
         # - After this step, tthere should be no remaining tags or odd latex formatting.
-        self.log('Applying text normalization to elements', 0)
+        self.log('Picking best text origine', 0)
+        for e, _ in self.docling_document.iterate_items():
+            
+            # Using backend text if no reason to use surya parsed element.
+            if e.label in ["caption", "footnote", "list_item", "paragraph"]:
+                if "</sup>" or "</math>" not in e.text:
+                    e.text = e.orig
+                
+                # Discarding unknown text
+                if not TextFixer.has_known_word(e.text) and TextFixer.has_known_word(e.orig):
+                    e.text = e.orig
+            
+            # Most likely miscartegorized header!
+            if e.label == "code" and len(e.orig) < 10:
+                e.label = "DISCARD"
+                    
+        self.log('Applying text normalization to elements', 0)       
         for e, _ in self.docling_document.iterate_items():
             if e.label == 'text':
                 self.log(f'Normalizing {e.self_ref}' , 1)
                 e.text = self.clean_text(e.text)
             elif e.label == 'list_item':
                 self.log(f'Normalizing {e.self_ref}' , 1)
-                
                 e.text = self.clean_text(e.text)
                 no_words = len(e.text.split())
                 if no_words >= 80:
                     e.label == 'text'
             elif e.label == 'formula':
                 self.log(f'Normalizing {e.self_ref}' , 1)
-
                 e.text = e.text if e.text else e.orig
                 e.text = self.clean_formula(e.text)
-                
             elif e.label == 'footnote':
                 self.log(f'Normalizing {e.self_ref}' , 1)
-
                 e.text = self.clean_footnote(e.orig, e.text)
-            
-            # No english words
-            # If not an empty space, this may indicate Docling missed parts of structures such as Tables or Figures
-            # Future versions should investigate __DISCARD__ labels 
-            if e.label in ['text','list_item'] and not TextFixer.has_known_word(e.text):
-                self.log(f'Discarding {e.self_ref}' , 1)
-                e.label = "__DISCARD__"
-        
-        # Repairs sentence boundaries using a mix of deep learning and heuristics.
-        #
-        # Writers often compress space for publication by using bold text instead of proper headers.
-        # A parser can't infer that and it reads something like: "Fixing continuity We show that..."
-        # Similarly, words may be merged (thecat) or missing hyphens across line breaks.
-        #
-        # Headers are extracted in a later pass; at this stage we just want semantically cohesive text.
-        # Extracts headers from reconstructed boundaries.
-        self.log('Repairing sentence boundaries', 0)
+            elif e.label == 'code':
+                e.text = TextCleaner.remove_latex_formatting(e.text)
+                
+        self.log('Discarding OCR soup', 0)  
         for e, _ in self.docling_document.iterate_items():
-            if e.label == "text":
-                e.text = TextFixer.fix_missing_boundary(e.text)
-
+        # No english words
+        # If not an empty space, this may indicate Docling missed parts of structures such as Tables or Figures
+        # Future versions should investigate __DISCARD__ labels 
+            if e.label in ['text','list_item']:
+                if not TextFixer.has_known_word(e.text):
+                    self.log(f'Discarding {e.self_ref}' , 1)
+                    e.label = "__DISCARD__"
+                else:
+                    if len(e.text) < 10:
+                        self.log(f'not Discarding {e.text}' , 1)
+                        
         self.log('Extracting title', 0)
         paper_title =[e.text for e,_ in list(self.docling_document.iterate_items()) if e.label == 'section_header'][0]
         
@@ -472,6 +526,20 @@ class NormalizedDocumentBuilder:
             # Sandwitched heading (most likely part of a figure group that was re-OCRed)
             section.items = self._discard_fake_headers(section.items)
 
+        # Repairs sentence boundaries using a mix of deep learning and heuristics.
+        #
+        # Writers often compress space for publication by using bold text instead of proper headers.
+        # A parser can't infer that and it reads something like: "Fixing continuity We show that..."
+        # Similarly, words may be merged (thecat) or missing hyphens across line breaks.
+        #
+        # Headers are extracted in a later pass; at this stage we just want semantically cohesive text.
+        # Extracts headers from reconstructed boundaries.
+        self.log('Repairing sentence boundaries', 0)
+        for section in sections:
+            for item in section.items:
+                if isinstance(item, IRParagraph):
+                    item.text = TextFixer.fix_missing_boundary(item.text)
+
         # Docling is great at inferring structure, but outputs elements linearly.
         # We use heuristics to infer reading order and how paragraphs should be grouped.
         #
@@ -487,14 +555,15 @@ class NormalizedDocumentBuilder:
             section.items = self._group_paragraphs_backwards(section.items)
             # Working forward, skipping as soon as pattern can't be found
             section.items = self._group_forward_code_blocks(section.items)
-        
+            section.items = self._group_forward_formula(section.items)
+            
         # Extracts headers from reconstructed boundaries.
         # While heuristics are good at detecting clear sentences, they may misclify edge case.
         # Special cases should be added to TextUnifier.is_heading
         self.log('Resolving missing headings', 1) 
         for section in sections:
             section.items = self._fix_headings(section.items)
-            
+        
         # Reconstruct hierarchy from numbering. 
         # first header is top level, subsequent ones are parent + 1.
         self.log('Resolving section level', 1) 

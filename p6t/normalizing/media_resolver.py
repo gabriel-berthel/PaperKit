@@ -179,7 +179,7 @@ class MediaResolver:
             next_item = items[current_idx + 1]
             
             if next_item and next_item.label == 'caption':
-                caption = next_item.text
+                caption = next_item
                 caption_bbox = caption.prov[0].bbox
                 page_no = caption.prov[0].page_no
            
@@ -193,7 +193,7 @@ class MediaResolver:
                 )
                 
                 crop = self.source_document.crop(page_no, merged_bbox)
-                final.append((crop, caption))
+                final.append((crop, caption.text))
                 
                 # mutating label so code block is discarded dowstream
                 code.label = "__discard__"

@@ -11,6 +11,7 @@ def flatten_elements(normalized_document: NormalizedDocument, resolve_refs=True)
     refs = {f"{e.label} {e.number}": e for e in normalized_document.tables + normalized_document.figures if e.label and e.number}
     footnotes = {e.identifier:e for e in normalized_document.footnotes if e.identifier}
     
+    seen = []
     items.append(IRHeader(normalized_document.document_title))
     for section in normalized_document.tree.flat():
         
@@ -31,13 +32,13 @@ def flatten_elements(normalized_document: NormalizedDocument, resolve_refs=True)
                 for identifier in footnotes.keys():
                     if f"footnote {identifier}" in lower_txt:
                         items.append(IRParagraph(f'footnote {identifier}: {footnotes[identifier].text}'))
-                        del footnotes[identifier]
                 
                 # Adding medias on first appearance.
                 for text_ref in refs.keys():
-                    if text_ref in lower_txt:
+                    if text_ref in lower_txt and text_ref not in seen:
                         items.append(refs[text_ref])
-                        del refs[text_ref]
+                        seen.append(text_ref)
+
                     
     return items
             

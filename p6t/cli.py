@@ -7,6 +7,7 @@ from p6t.model.parsed_document import ParsedDocument
 from p6t.normalizing.normalize import normalize_and_push
 from p6t.parsing.parse import parse_and_push
 from p6t.persistance.db import db_get
+from p6t.serialize.core import flatten_elements
 from p6t.serialize.serialize import serialize_html, serialize_markdown, serialize_text
 import subprocess
 
@@ -37,11 +38,10 @@ def cmd_register(args):
         parsed_document = parse_and_push(pdf_path, args.batch, args.skip_ocr)
 
     print("Normalizing...")
-    normalized_document = normalize_and_push(parsed_document)
+    normalize_and_push(parsed_document)
 
     print(
-        f"Registered '{pdf_path.name}' "
-        f"({len(normalized_document.pages)} pages)"
+        f"Registered '{pdf_path.name}'"
     )
     
 def cmd_serialize(args):
@@ -55,15 +55,21 @@ def cmd_serialize(args):
             "Run 'p6t register <pdf>' first."
         )
         return 1
+    
+    elements = flatten_elements(normalized_document)
 
     if args.format == "md":
-        output = serialize_markdown(normalized_document)
+        output = serialize_markdown(elements)
     elif args.format == "html":
-        output = serialize_html(normalized_document)
+        output = serialize_html(elements)
     else:
-        output = serialize_text(normalized_document)
-
-    print(output)
+        output = serialize_text(elements)
+    
+    slug = normalized_document.document_title.lower().replace(" ", "_")
+    output_path = f"{slug}.{args.format}"
+    with open(output_path, 'w') as f:
+        f.write(output)
+    
     return 0
 
 def cmd_bundle(args):
@@ -208,16 +214,17 @@ def main():
     # Serialize
     serialize_parser = subparsers.add_parser(
         "serialize",
-        help="Export pdf as a text file"
+        help="Export pdf as readable file. Export is done in where pdf is located!"
     )
     serialize_parser.add_argument(
         "pdf",
         help="Path to the PDF file"
     )
+    
     serialize_parser.add_argument(
         "--format",
         "-f",
-        choices=["md", "html", "text"],
+        choices=["md", "html", "txt"],
         required=True,
         help="Output format"
     )

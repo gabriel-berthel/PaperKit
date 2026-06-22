@@ -59,7 +59,7 @@ def db_get(pdf_path, location: str):
         return None
 
     with open(path, "rb") as f:
-        return pickle.load(f)
+        return pickle.load(f)["data"]
 
 
 def list_all(location: str):

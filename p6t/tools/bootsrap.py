@@ -3,10 +3,25 @@ from functools import lru_cache
 from pathlib import Path
 import subprocess
 import logging
+import sys
+# 1. Remove all existing handlers
+root = logging.getLogger()
+for h in root.handlers[:]:
+    root.removeHandler(h)
 
-log = logging.getLogger()
-logging.disable(logging.ERROR)
+# 2. Set maximum verbosity
+root.setLevel(logging.ERROR)
 
+# 3. Add a clean console handler
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.ERROR)
+
+formatter = logging.Formatter(
+    "%(asctime)s | %(name)s | %(levelname)s | %(message)s"
+)
+handler.setFormatter(formatter)
+
+root.addHandler(handler)
 
 def ensure_nltk():
     print(f"Ensuring NLTK ressources")

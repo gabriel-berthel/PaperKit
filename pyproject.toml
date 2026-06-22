@@ -14,7 +14,7 @@ dependencies = [
     "fastapi",
     "uvicorn",
     
-     # PDF Parsing
+    # PDF Parsing
     "docling",
 
     # Maths Inlining
@@ -45,4 +45,7 @@ dependencies = [
 ]
 
 [project.scripts]
-p6t-parse = "p6t.parse:main"
+p6t = "p6t.cli:main"
+
+[tool.poetry.dependencies]
+surya-ocr = "0.17.1"

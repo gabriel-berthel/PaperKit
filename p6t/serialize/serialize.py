@@ -78,9 +78,6 @@ def serialize_markdown(ir_nodes):
             parts.append("")
 
         elif isinstance(item, (IRTable, IRFigure)):
-            parts.append(f"![{item.caption}](embedded-image)")
-            parts.append("")
-
             if item.caption:
                 parts.append(f"*{item.caption}*")
                 parts.append("")

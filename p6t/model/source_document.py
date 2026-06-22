@@ -108,5 +108,5 @@ class SourceDocument:
 
         page = self.get_page(page_number)
         box = self.pdf_bbox_to_pil(bbox, page.height, scale)
-        padded = (box[0] - 10, box[1] - 10, box[2] + 10, box[3] + 10)
+        padded = (box[0] - 5, box[1] - 5, box[2] + 5, box[3] + 5)
         return page.crop(padded)

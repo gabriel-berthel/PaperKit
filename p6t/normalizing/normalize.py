@@ -16,9 +16,6 @@ def normalize_document(parsed_document: ParsedDocument) -> NormalizedDocument:
     return normalized_document
 
 def normalize_and_push(parsed_document: ParsedDocument) -> NormalizedDocument:
-    normalized_document = normalize_document(parsed_document)
-    db_push(parsed_document.source_document.pdf_hash, 'normalizing', normalized_document)
-
     """
     Normalize ParsedDocument into a NormalizedDocument and save it as a pickle file.
     """

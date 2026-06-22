@@ -126,12 +126,18 @@ class TextFixer:
         if not text:
             return False
         
+        if re.match(r'\$(.*?)\$', text):
+            return True
+        
+        # No alphanum
+        if not [character for character in list(text) if character.isalpha()]:
+            return False
+        
         # not looking up non alpha words (tho set operations are already fast)
         for w in text.split():
             w = w.lower()
-            if len(w) > 2 and w.isalpha() and w in word_set:
+            if len(w) >= 2 and w.isalpha() and w in word_set:
                 return True
-            
             
         return False
 
@@ -143,7 +149,7 @@ class TextFixer:
         """
    
         # Missed paragraph continuation
-        if sentence[0].islower() or not sentence[0].isalnum():
+        if sentence and sentence[0].islower() or not sentence[0].isalnum():
             return False
             
         # Known non-header patterns. Regex would catch more but risks introducing
@@ -265,7 +271,7 @@ class TextFixer:
         """
         
         # can't be a header
-        if text[0].islower():
+        if text and text[0].islower():
             return text
         
         # Pysegmter should handle abbreviations
@@ -287,7 +293,7 @@ class TextFixer:
             # Colon as boundary is likely to be already well formed.
             if text.startswith(candidate_boundary + ':'):
                 return text
-
+            
             return re.sub(rf'\b{candidate_boundary}\b', candidate_boundary + '.', text, count=1)
     
         return text

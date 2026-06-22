@@ -69,13 +69,30 @@ class TextCleaner:
         return  re.sub(r"<sup>(.*?)</sup>", r"footnote \1", text)
     
     @staticmethod
+    def crush_latex_spaces(latex):
+        protected = []
+
+        def save(m):
+            protected.append(m.group(0))
+            return f"@@{len(protected)-1}@@"
+
+        # protect commands with one {...} argument
+        
+        latex = re.sub(r'\\[a-zA-Z]+', save, latex)
+        latex = re.sub(r' ', '', latex)
+
+        for i, value in enumerate(protected):
+            latex = latex.replace(f"@@{i}@@", f' {value} ')
+            
+        return latex
+    
+    @staticmethod
     def normalize_inlined_maths(text):
         def repl(match):
             latex = match.group(1)
-            latex = re.sub(' ', '', latex)
-            return f"$ {texer.latex_to_text(latex)} $"
+            return f"$ {TextCleaner.crush_latex_spaces(latex)} $"
  
-        return re.sub(r"<math>(.*?)</math>", repl, text, flags=re.DOTALL)
+        return re.sub(r"<math(?: [^>]+)?>(.*?)</math>", repl, text, flags=re.DOTALL)
     
     @staticmethod
     def unify_unicor_chars(text: str) -> str:
@@ -146,7 +163,7 @@ class TextCleaner:
                 counter += 1
 
         # Mask <math>...</math> blocks (including multiline)
-        mask(r'<math>.*?</math>', re.DOTALL)
+        mask(r'<math(?: [^>]+)?>.*?</math>', re.DOTALL)
 
         # Mask decimals: 3.14, .5
         mask(r'\d*\.\d+')
@@ -156,6 +173,9 @@ class TextCleaner:
         
         # Mask urls
         mask(r'https?://\S+')
+        
+        # mask emails
+        mask(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}')
 
         return text, placeholders
 
@@ -219,7 +239,7 @@ class TextCleaner:
             r'\\mathfrak', r'\\mathscr', r'\\mathrm', r'\\mathds',
             r'\\textbf', r'\\texttt', r'\\textit', r'\\textrm', r'\\textsf',
             r'\\textsc', r'\\textsl', r'\\emph', r'\\text',
-            r'\\boldsymbol', r'\\bm',
+            r'\\boldsymbol', r'\\bm', r'\\boxed',
         ]:
             text = re.sub(cmd + r'\{([^}]*)\}', r'\1', text)
 

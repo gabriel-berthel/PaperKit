@@ -1,16 +1,11 @@
 
 
-from p6t.persistance.db import db_push
+from p6t.persistance.db import db_get, db_push
 from p6t.model.parsed_document import ParsedDocument
 from p6t.model.source_document import SourceDocument
 from p6t.parsing.docling_converter import DoclingConverter
 from p6t.parsing.ocr import SuryaLatexOCR
 from docling_core.types.doc import DoclingDocument
-import pickle
-from pathlib import Path
-import os
-
-SURYA_BATCH_SIZE = int(os.getenv("SURYA_BATCH_SIZE", "16"))
 
 converter = DoclingConverter()
 surya = SuryaLatexOCR()
@@ -32,7 +27,7 @@ def parse_document(file_path, batch_size=8, skip_ocr=False) -> ParsedDocument:
     if not skip_ocr:
         print("Collecting textual element crops")
         for element, _ in docling_document.iterate_items():
-            if element.label in ["caption", "text", "list_item", "footnote"]:
+            if element.label in ["caption", "text", "list_item", "footnote", "formula"]:
                 bbox = element.prov[0].bbox
                 page_no = element.prov[0].page_no
 
@@ -40,15 +35,17 @@ def parse_document(file_path, batch_size=8, skip_ocr=False) -> ParsedDocument:
                 items.append((element, crop))
 
         print("Running surya OCR on textual elements")
+        
         for i in range(0, len(items), batch_size):
             batch = items[i:i + batch_size]
             crops = [crop for _, crop in batch]
             print(f"Re-OCRing {i + 1} / {len(items)}")
-            results = surya.run_single_block(crops)
-
+            results = surya.run_blocks(crops)
+        
             # Mutating elements
             for (element, _), text in zip(batch, results):
-                element.text = text
+                if text:
+                    element.text = text
 
     return ParsedDocument(source_document, docling_document)
 
