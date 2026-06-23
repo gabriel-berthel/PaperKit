@@ -18,6 +18,7 @@ export async function request(url, {
 
 export const ENDPOINTS = {
   SIMPLIFY: "http://127.0.0.1:8080/api/simplify",
+  FIXTEXT: "http://127.0.0.1:8080/api/fixtext",
   SUMMARIZE: "http://127.0.0.1:8080/api/summarize",
   WHAT_IS_IT: "http://127.0.0.1:8080/api/whatItIs",
   GLINER_PROBE: "http://127.0.0.1:8080/api/entity/probe",

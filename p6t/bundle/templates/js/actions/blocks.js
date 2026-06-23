@@ -85,7 +85,7 @@ async function toClearSpeakFormula(el) {
  * Flashes the new paragraph (not the removed element).
  */
 async function simplifyFormulaEl(el) {
-  const text = await withUI(() => simplify(el.textContent, MODES.FORMULA))
+  const text = await withUI(() => simplify(el.dataset.latex, MODES.FORMULA))
     .then((r) => r.text)
     .catch(() => null);
 
@@ -115,17 +115,16 @@ async function describeCodeEl(el) {
 // Each entry: { id, tooltip, icon, run, match? }
 // `match` is an optional predicate (el) => boolean; omit to always show.
 
-const SUMMARIZE  = { id: "summarize",    tooltip: "Summarize",    icon: "💡", run: summarizeEl   };
-const MATH       = { id: "simplify-math",tooltip: "Simplify math",icon: "🔢", run: simplifyMathEl};
+const SUMMARIZE  = { id: "summarize",    tooltip: "Summarize All",    icon: "💬", run: summarizeEl   };
 const PLAY       = { id: "playTTS",      tooltip: "Play",         icon: "▶️", run: playFrom      };
-const DELETE     = { id: "removeEl",     tooltip: "Delete",       icon: "🗑️", run: removeEl      };
-const BULLETIZE  = { id: "bulletize",    tooltip: "Bulletize",    icon: "📋", run: bulletizeEl   };
-const PARAGRAPHI = { id: "paragraphize", tooltip: "Make paragraph",icon: "📄",run: toParagraphEl };
+const DELETE     = { id: "removeEl",     tooltip: "Delete",       icon: "❌", run: removeEl      };
+const BULLETIZE  = { id: "bulletize",    tooltip: "Bulletize",    icon: "●", run: bulletizeEl   };
+const PARAGRAPHI = { id: "paragraphize", tooltip: "Make paragraph",icon: "§",run: toParagraphEl };
 
 const BLOCK_ACTIONS = {
-  paragraph:      [SUMMARIZE, MATH, PLAY, BULLETIZE, DELETE],
-  bullet:         [SUMMARIZE, MATH, PLAY, PARAGRAPHI, DELETE],
-  "caption-bloc": [MATH, SUMMARIZE, PLAY, DELETE],
+  paragraph:      [SUMMARIZE, PLAY, BULLETIZE, DELETE],
+  bullet:         [SUMMARIZE, PLAY, PARAGRAPHI, DELETE],
+  "caption-bloc": [SUMMARIZE, PLAY, DELETE],
   heading:        [PLAY, PARAGRAPHI, DELETE],
   code: [
     { id: "simplify-code",    tooltip: "Describe code", icon: "🔍", run: describeCodeEl    },

@@ -1,4 +1,4 @@
-import { simplify, MODES, fetchWhatIsIt } from "../api/actions.js";
+import { simplify, MODES, fetchWhatIsIt, summarize, fixText } from "../api/actions.js";
 import { withUI } from "../dom/ui_freeze.js";
 import { state } from "../state.js";
 import { revertAnnotations, run_all_annotations } from "../marking/annotation.js";
@@ -13,12 +13,12 @@ const MIN_WORDS_FOR_SIMPLIFY = 6;
  * Element types that snap the selection to their outer boundary when partially
  * selected (tables, figures, etc. should always be selected whole or not at all).
  */
-const SNAP_SELECTOR    = typeSelector("table", "figure", "reference", "footnote", "inline-maths");
+const SNAP_SELECTOR = typeSelector("table", "figure", "reference", "footnote", "inline-maths");
 
 /**
  * Element types that can host a selection toolbar (paragraph-level blocks).
  */
-const TOOLBAR_SELECTOR = typeSelector("paragraph", "bullet", "caption-bloc");
+const TOOLBAR_SELECTOR = typeSelector("paragraph", "bullet");
 
 // ── Toolbar state ─────────────────────────────────────────────────────────────
 
@@ -39,11 +39,14 @@ const canSimplify   = (text,  multiBlock) => !multiBlock && isLongEnough(text);
 const canExplain    = (text,  multiBlock) => !multiBlock && isShortSelection(text);
 const canRemove     = () => true;
 const canCancel     = () => true;
+const canFix   = (text,  multiBlock) => !multiBlock && isShortSelection(text);
 
 const ACTION_CONDITIONS = {
   group:             canGroup,
+  "fix-text": canFix,
   "simplify-student": canSimplify,
   "simplify-expert":  canSimplify,
+  "summarize":  canSimplify,
   explain:           canExplain,
   remove:            canRemove,
   cancel:            canCancel,
@@ -70,7 +73,29 @@ async function runSimplify(mode) {
   const clone = cloneSelectionToDiv();
   if (!clone) {return;}
 
+  clone.querySelectorAll(".inline-maths").forEach(el => el.textContent = el.dataset.latex)
+
   await withUI(() => simplify(revertAnnotations(clone).textContent, mode))
+    .then((result) => replaceSelection(result.text))
+    .catch(() => null);
+  push();
+}
+
+async function runSummary() {
+  const clone = cloneSelectionToDiv();
+  if (!clone) {return;}
+
+  await withUI(() => summarize(revertAnnotations(clone).textContent))
+    .then((result) => replaceSelection(result.text))
+    .catch(() => null);
+  push();
+}
+
+async function runFixText(mode) {
+  const clone = cloneSelectionToDiv();
+  if (!clone) {return;}
+
+  await withUI(() => fixText(clone.textContent, mode))
     .then((result) => replaceSelection(result.text))
     .catch(() => null);
   push();
@@ -130,6 +155,8 @@ function runCancel() {
 const ACTIONS = [
   { id: "group",            label: "🔗 Group",             run: runGroup            },
   { id: "remove",           label: "🗑️ Remove",            run: runRemove           },
+  { id: "summarize",  label: "💬 Summarize",  run: runSummary   },
+  { id: "fix-text", label: "✨ Fix Text", run: runFixText  },
   { id: "simplify-student", label: "🎓 Simplify (Student)", run: runSimplifyStudent  },
   { id: "simplify-expert",  label: "🧠 Simplify (Expert)",  run: runSimplifyExpert   },
   { id: "explain",          label: "📖 Explain",            run: runExplain          },

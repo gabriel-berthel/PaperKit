@@ -32,7 +32,7 @@ function openUrlEl(el) {
 /** Replaces an inline-maths span with plain speechified text then unwraps it. */
 async function speechifyMathsEl(el) {
   const clone = revertAnnotations(el);
-  await withUI(() => simplify(clone.textContent, MODES.FORMULA))
+  await withUI(() => simplify(clone.dataset.latex, MODES.FORMULA))
     .then((result) => {
       el.textContent = result.text;
       el.replaceWith(...el.childNodes);
@@ -153,7 +153,7 @@ function insertCaptionInline(el, rawCaption) {
 
 function insertCaptionBelow(el, rawCaption) {
   const block        = document.createElement("p");
-  block.dataset.type = "caption-bloc";
+  block.dataset.type = "paragraph";
   block.innerHTML    = run_all_annotations(rawCaption);
 
   // Insert after the last sibling bullet if we are inside a bullet list.

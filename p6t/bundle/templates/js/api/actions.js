@@ -35,6 +35,14 @@ export function summarize(text) {
   });
 }
 
+export function fixText(text) {
+  return request(ENDPOINTS.FIXTEXT, {
+    method: "POST",
+    payload: { 'text': text }
+  });
+}
+
+
 export function fetchWhatIsIt(term, context) {
   return request(ENDPOINTS.WHAT_IS_IT, {
     method: "POST",

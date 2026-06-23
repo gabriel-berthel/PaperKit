@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderMathInElement(document.body, {
       delimiters: [
           { left: '$$', right: '$$', display: true, output: 'html'     },
-          { left: '$', right: '$', display: false, output: 'mathml'     }
+          { left: '$', right: '$', display: false, output: 'html'     }
       ]
   });
 
