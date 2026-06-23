@@ -1,4 +1,5 @@
 import { expandAbbreviations } from "./abbreviations.js"
+import { SREConvertion } from "../api/actions.js";
 
 export function speechify(el) {
   const type = el.dataset.type;
@@ -35,6 +36,7 @@ export function paragraphToSpeech(el) {
       const tooltip = node.getAttribute('data-tooltip') || '';
       node.textContent = tooltip ? `reference ${tooltip}` : 'reference';
     });
+
 
   let text = clone.textContent;
 

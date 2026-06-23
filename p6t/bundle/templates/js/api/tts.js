@@ -30,13 +30,14 @@ function hashText(str) {
 export function fetchAudio(text) {
   const key = hashText(text);
   if (audioCache.has(key)) return audioCache.get(key);
-
-  const promise =  request(ENDPOINTS.PIPER, {
-    method: "POST",
-    payload: { 'text': text }
-  })
-  .then(res => res.blob())
-  .then(blob => URL.createObjectURL(blob));
+  
+  const promise = fetch(ENDPOINTS.PIPER, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text }),
+    })
+      .then(res => res.blob())
+      .then(blob => URL.createObjectURL(blob));
 
   cacheSet(key, promise);
   return promise;

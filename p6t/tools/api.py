@@ -77,8 +77,16 @@ async def tts(request: Request, payload: TextRequest):
 
     buffer = io.BytesIO()
 
+    speech = await llm_simple_task(payload.text, 
+            "Rewrite the input as natural spoken English for TTS. Keep meaning unchanged, improve flow for speech, and remove anything non-verbal or non-pronounceable. Output only clean, plain spoken text."
+    )
+    
+    print(speech)
     with wave.open(buffer, "wb") as wav:
-        request.app.state.voice.synthesize_wav(payload.text, wav)
+        if speech:
+            request.app.state.voice.synthesize_wav(speech, wav)
+        else:
+            request.app.state.voice.synthesize_wav(payload.text, wav)
 
     buffer.seek(0)
 

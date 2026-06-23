@@ -4,10 +4,7 @@ import { maskTags, extractUrl } from '../dom/utils.js';
 // ── Annotators ────────────────────────────────────────────────────────────────
 
 export function markInlineMaths(text) {
-  text = text.replace(/\$(.*?)\$/g, (_, content) => {
-    return `<code data-type='inline-maths'>${content.trim()}</code>`
-  })
-
+  // removed.
   return text
 }
 

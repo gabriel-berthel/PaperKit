@@ -53,10 +53,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   renderMathInElement(document.body, {
       delimiters: [
-          { left: '$$', right: '$$', display: true,       output: 'html',     }
+          { left: '$$', right: '$$', display: true, output: 'html'     },
+          { left: '$', right: '$', display: false, output: 'mathml'     }
       ]
   });
-
 
   convert_all_footnotes_to_bullet()
   initSnapshots()

@@ -20,6 +20,7 @@ function extractDocumentText(root) {
     .join('\n');
 }
 
+
 export async function glinerMatchesFetch(terms) {
   if (!terms.length) return {};
 
@@ -28,11 +29,11 @@ export async function glinerMatchesFetch(terms) {
 
   const text = extractDocumentText(root);
 
-  const res = await request(ENDPOINTS.GLINER_PROBE, {
-    method: "POST",
-    payload: { text, targets: terms }
+  const res = await fetch(ENDPOINTS.GLINER_PROBE, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, targets: terms }),
   });
-
 
   if (!res.ok) throw new Error(`Probe request failed: ${res.status}`);
 
