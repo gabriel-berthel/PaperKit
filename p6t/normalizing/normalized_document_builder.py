@@ -351,9 +351,11 @@ class NormalizedDocumentBuilder:
         return fixed 
     
     def clean_text(self, text):
-        before = text
         # Normalize Unicode Chars
         text = TextCleaner.unify_unicor_chars(text)
+        
+        # Line break hyphenation
+        text = re.sub(r'(\w+)-\s*\n\s*(\w+)', r'\1\2', text)
         
         # Unifying spacing
         text = TextCleaner.unify_spacing(text)
@@ -378,9 +380,6 @@ class NormalizedDocumentBuilder:
     
         # Fixing broken words
         text = TextFixer.fix_lowercase_broken_boudaries(text)
-        
-        # Fixing hyphenation
-        text = TextFixer.fix_hyphen(text)
         
         # Removing leading bullet marker
         text = TextCleaner.clean_bullet_text(text)
@@ -424,17 +423,7 @@ class NormalizedDocumentBuilder:
         # - Broken OCR boundaries (missing punct) are repaired.
         # - After this step, tthere should be no remaining tags or odd latex formatting.
         self.log('Picking best text origine', 0)
-        for e, _ in self.docling_document.iterate_items():
-            
-            # Using backend text if no reason to use surya parsed element.
-            if e.label in ["caption", "footnote", "list_item", "paragraph"]:
-                if "</sup>" or "</math>" not in e.text:
-                    e.text = e.orig
-                
-                # Discarding unknown text
-                if not TextFixer.has_known_word(e.text) and TextFixer.has_known_word(e.orig):
-                    e.text = e.orig
-            
+        for e, _ in self.docling_document.iterate_items():            
             # Most likely miscartegorized header!
             if e.label == "code" and len(e.orig) < 10:
                 e.label = "_DISCARD_"
@@ -562,6 +551,13 @@ class NormalizedDocumentBuilder:
         self.log('Resolving missing headings', 1) 
         for section in sections:
             section.items = self._fix_headings(section.items)
+            
+        self.log('Fixing hyphenation', 1) 
+        for section in sections:
+            for item in section.items:
+                # Fixing hyphenation
+                if isinstance(item, IRParagraph):
+                    item.text = TextFixer.fix_hyphen(item.text)
         
         # Reconstruct hierarchy from numbering. 
         # first header is top level, subsequent ones are parent + 1.

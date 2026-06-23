@@ -94,13 +94,8 @@ class TextCleaner:
         def repl(match):
             latex = match.group(1)
             
-            if re.match(r'\\[a-zA-Z]+', latex):
-                return f" $ {TextCleaner.crush_latex_spaces(latex)} $ "
-            else:
-                text = texer.latex_to_text(latex)
-                text = re.sub(r'(\^[\S+])', r'$\1$', text)
-                return text
- 
+            return f" $ {TextCleaner.crush_latex_spaces(latex)} $ "
+
         return re.sub(r"<math(?: [^>]+)?>(.*?)</math>", repl, text, flags=re.DOTALL)
     
     @staticmethod

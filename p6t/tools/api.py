@@ -1,6 +1,9 @@
 import io
 import os
+from pathlib import Path
 import re
+import subprocess
+import tempfile
 import unicodedata
 import wave
 
@@ -21,13 +24,8 @@ from p6t.tools.conf import settings
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    app.state.voice = init_piper(settings.piper_voice)
-    yield
-    app.state.voice = None
-    
-app = FastAPI(lifespan=lifespan)
+
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
@@ -70,28 +68,32 @@ async def root():
     
 
 # ---------- TTS ---------- 
+
+def synthesize_wav(text: str) -> bytes:
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        wav_path = tmp.name
+
+    try:
+        subprocess.run(
+            ["kokoro-tts", "-", wav_path, "--voice", "am_michael"],
+            input=text,
+            text=True,
+            check=True,
+        )
+
+        return Path(wav_path).read_bytes()
+
+    finally:
+        Path(wav_path).unlink(missing_ok=True)
+
 @router.post("/tts")
-async def tts(request: Request, payload: TextRequest):
-    if request.app.state.voice is None:
-        return Response(status_code=503, content="Voice model not loaded")
+async def tts(payload: TextRequest):
+    wav_bytes = synthesize_wav(payload.text)
 
-    buffer = io.BytesIO()
-
-    speech = await llm_simple_task(payload.text, 
-            "Rewrite the input as natural spoken English for TTS. Keep meaning unchanged, improve flow for speech, and remove anything non-verbal or non-pronounceable. Output only clean, plain spoken text."
+    return Response(
+        content=wav_bytes,
+        media_type="audio/wav",
     )
-    
-    print(speech)
-    with wave.open(buffer, "wb") as wav:
-        if speech:
-            request.app.state.voice.synthesize_wav(speech, wav)
-        else:
-            request.app.state.voice.synthesize_wav(payload.text, wav)
-
-    buffer.seek(0)
-
-    return Response(content=buffer.read(), media_type="audio/wav")
-
 
 # ---------- Gliner Probe ---------- 
 @router.post("/entity/probe")
@@ -144,17 +146,6 @@ def build_overview(payload: TextRequest) -> TextResponse:
 
 
 # ---------- Simplifiers ---------- 
-async def _simplify(text: str, instruction: str) -> str:
-    out = await llm_simple_task(text, instruction)
-
-    # fallback for non-ascii code/text
-    if not out:
-        clean = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("ascii")
-        out = await llm_simple_task(clean, instruction)
-
-    return re.sub(r"_(\w+)", r" sub \1", out)
-
-
 @router.post("/simplify/expert")
 async def simplify_text_expert(payload: TextRequest) -> TextResponse:
     return TextResponse(text=await llm_simplify_text(payload.text, level="graduate"))
@@ -165,34 +156,36 @@ async def simplify_text_student(payload: TextRequest) -> TextResponse:
     return TextResponse(text=await llm_simplify_text(payload.text, level="student"))
 
 
-@router.post("/simplify/maths")
-async def simplify_maths(payload: TextRequest) -> TextResponse:
-    instruction = (
-        "Rewrite all mathematical expressions, variables, Greek letters, symbols, "
-        "operators, equations, and notation as plain spoken English. "
-        "Do not explain or solve. Output only text."
-    )
-    return TextResponse(text=await _simplify(payload.text, instruction))
-
-
 @router.post("/simplify/wording")
 async def simplify_wording(payload: TextRequest) -> TextResponse:
     return TextResponse(
         text=await llm_simple_task(payload.text, "Rewrite in simpler words without changing structure.")
     )
     
+@router.post("/fixtext")
+async def simplify_wording(payload: TextRequest) -> TextResponse:
+    return TextResponse(
+        text=await llm_simple_task(payload.text, "Correct and reconstruct the OCR-extracted text.")
+    )    
+
 @router.post("/simplify/formula")
 async def simplify_caption_content(payload: TextRequest) -> TextResponse:
-    return TextResponse(
-        text=await llm_simple_task(payload.text, "Convert this mathematical expression into the way it would be naturally spoken aloud in English.")
+    response = TextResponse(
+        text=await llm_simple_task(
+            payload.text, 
+            "Convert this mathematical expression into the way it would be naturally spoken aloud in English"
+        )
     )
+    
+    response.text.replace("_", " sub ")
+    return response
+
 
 @router.post("/simplify/caption")
 async def simplify_caption_content(payload: TextRequest) -> TextResponse:
     return TextResponse(
         text=await llm_simple_task(payload.text, "Summarize caption text for readability.")
     )
-
 
 @router.post("/simplify/code")
 async def simplify_code(payload: TextRequest) -> TextResponse:

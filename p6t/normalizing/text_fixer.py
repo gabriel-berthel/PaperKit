@@ -335,7 +335,7 @@ class TextFixer:
             original_text = filtered_html[match.offset : match.offset + match.error_length]
             top_fix = match.replacements[0] if match.replacements else None
             
-            if top_fix and top_fix.islower() and not top_fix in latex_formulas:
+            if top_fix and len(top_fix) !=  match.error_length and not top_fix in latex_formulas:
                 text = text.replace(original_text, top_fix)
         
         return text

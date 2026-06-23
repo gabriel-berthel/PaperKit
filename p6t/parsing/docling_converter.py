@@ -10,8 +10,8 @@ class DoclingConverter:
 
     def _build(self):
         self.pipeline_options = PdfPipelineOptions(
-            do_ocr=False,
-            do_formula_enrichment=False,
+            do_ocr=True,
+            do_formula_enrichment=True,
             do_code_enrichment=False,
             images_scale=1.0,
 
