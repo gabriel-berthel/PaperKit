@@ -80,7 +80,7 @@ class TextCleaner:
         
         latex = re.sub(r'\\[a-zA-Z]+\{[^{}]*\}', save, latex)
         latex = re.sub(r'\\[a-zA-Z]+', save, latex)
-        latex = re.sub(r' ', '', latex)
+        latex = re.sub(r' ([A-Za-z])+ ', '\1', latex)
         latex = re.sub(r'>', ' > ', latex)
         latex = re.sub(r'<', ' < ', latex)
 
@@ -94,8 +94,11 @@ class TextCleaner:
         def repl(match):
             latex = match.group(1)
             
+            if latex.strip() == texer.latex_to_text(latex).strip():
+                return latex
+            
             return f" $ {TextCleaner.crush_latex_spaces(latex)} $ "
-
+            
         return re.sub(r"<math(?: [^>]+)?>(.*?)</math>", repl, text, flags=re.DOTALL)
     
     @staticmethod
@@ -240,12 +243,15 @@ class TextCleaner:
         Not removing them degrades LaTex handling dowstreams.
         """
         
-        # Font style commands (mathbf, mathtt, textbf, etc.)
+        # Unwrapping text from math
+        text = re.sub(r'\\text\{([^}]*)\}', r'</math> \1 <math>', text)
+        
+        # Font style commands (mathbf, mathtt, textbf, etc
         for cmd in [
             r'\\mathbf', r'\\mathtt', r'\\mathit', r'\\mathsf', r'\\mathbb', r'\\mathcal',
             r'\\mathfrak', r'\\mathscr', r'\\mathrm', r'\\mathds',
             r'\\textbf', r'\\texttt', r'\\textit', r'\\textrm', r'\\textsf',
-            r'\\textsc', r'\\textsl', r'\\emph', r'\\text',
+            r'\\textsc', r'\\textsl', r'\\emph',
             r'\\boldsymbol', r'\\bm', r'\\boxed',
         ]:
             text = re.sub(cmd + r'\{([^}]*)\}', r'\1', text)
