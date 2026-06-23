@@ -81,6 +81,7 @@ class TextCleaner:
         latex = re.sub(r'\\[a-zA-Z]+\{[^{}]*\}', save, latex)
         latex = re.sub(r'\\[a-zA-Z]+', save, latex)
         latex = re.sub(r' ([A-Za-z])+ ', '\1', latex)
+        latex = re.sub(r' ', '', latex)
         latex = re.sub(r'>', ' > ', latex)
         latex = re.sub(r'<', ' < ', latex)
 
@@ -91,6 +92,10 @@ class TextCleaner:
     
     @staticmethod
     def normalize_inlined_maths(text):
+        
+        # Unwrapping text from math
+        text = re.sub(r'\\text\{([^}]*)\}', r'</math> \1 <math>', text)
+        
         def repl(match):
             latex = match.group(1)
             
@@ -243,9 +248,6 @@ class TextCleaner:
         Strips formatting commands from LaTex.
         Not removing them degrades LaTex handling dowstreams.
         """
-        
-        # Unwrapping text from math
-        text = re.sub(r'\\text\{([^}]*)\}', r'</math> \1 <math>', text)
         
         # Font style commands (mathbf, mathtt, textbf, etc
         for cmd in [
