@@ -4,17 +4,20 @@ from pathlib import Path
 import subprocess
 import logging
 import sys
-# 1. Remove all existing handlers
+import time
+
+import ollama
+"""# 1. Remove all existing handlers
 root = logging.getLogger()
 for h in root.handlers[:]:
     root.removeHandler(h)
 
 # 2. Set maximum verbosity
-root.setLevel(logging.ERROR)
+root.setLevel(logging.INFO)
 
 # 3. Add a clean console handler
 handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.ERROR)
+handler.setLevel(logging.INFO)
 
 formatter = logging.Formatter(
     "%(asctime)s | %(name)s | %(levelname)s | %(message)s"
@@ -22,7 +25,7 @@ formatter = logging.Formatter(
 handler.setFormatter(formatter)
 
 root.addHandler(handler)
-
+"""
 def ensure_nltk():
     print(f"Ensuring NLTK ressources")
     import nltk
@@ -90,8 +93,8 @@ def init_surya():
 def init_gliner():
     print("Init: fastino/gliner2-base-v1")
     from gliner2 import GLiNER2
-    return GLiNER2.from_pretrained("fastino/gliner2-base-v1")
-
+    model = GLiNER2.from_pretrained("fastino/gliner2-base-v1")
+    
 @lru_cache(maxsize=1)
 def init_spacy():
     print("Init: Spacy")
@@ -152,15 +155,21 @@ def init_piper(voice):
     return PiperVoice.load(model_path, config_path=config_path)
 
 def init_llama32():
-    import ollama
-    subprocess.run(
-            ["ollama", "server"],
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
+    # Start Ollama in the background
+    print("Starting ollama")
+    
+    process = subprocess.Popen(
+        ["ollama", "serve"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
     )
+
+    # Give the server a moment to start
+    time.sleep(2)
+
     ollama.pull("llama3.2")
+
+    return process
     
 
 # Master init

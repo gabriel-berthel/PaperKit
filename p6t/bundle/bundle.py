@@ -50,7 +50,7 @@ def get_and_save_refs(normalized_document: NormalizedDocument, media_path):
 
     return refs
 
-def bundle_statis_files(output_path):
+def bundle_static_files(output_path):
     # Copying js into bundle
     print("Bunding scripts")
     js_src = Path("p6t/bundle/templates/js")
@@ -86,6 +86,6 @@ def export_document(normalized_document: NormalizedDocument, output_folder):
         ))
 
     # Bundling JS / CSS files
-    bundle_statis_files()
+    bundle_static_files(output_path)
     
     return output_path

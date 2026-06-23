@@ -1,9 +1,8 @@
 from spacy.lang.en import English
 import torch
 
-from p6t.tools.bootsrap import init_gliner
-
-gliner_model = init_gliner()
+from gliner2 import GLiNER2
+gliner_model = GLiNER2.from_pretrained("fastino/gliner2-base-v1")
 
 
 nlp = English()

@@ -1,5 +1,8 @@
 import argparse
+import os
 from pathlib import Path
+
+import uvicorn
 
 from p6t.bundle.bundle import export_document
 from p6t.model.normalized_document import NormalizedDocument
@@ -129,35 +132,14 @@ def cmd_serve(args):
 
     print(f"Serving bundle: {bundle_dir}")
 
-    static_server = subprocess.Popen(
-        ["python", "-m", "http.server", "8000"],
-        cwd=bundle_dir,
-    )
-
-    api_server = subprocess.Popen(
-        [
-            "uvicorn",
-            "p6t.tools.api:app",
-            "--host",
-            "0.0.0.0",
-            "--port",
-            "8080",
-        ]
-    )
-
-    print("Static server: http://localhost:8000")
+    
     print("API server:    http://localhost:8080")
     print("Press Ctrl+C to stop.")
-
-    try:
-        static_server.wait()
-        api_server.wait()
-    except KeyboardInterrupt:
-        print("\nStopping servers...")
-        static_server.terminate()
-        api_server.terminate()
-
-    return 0
+    
+    os.environ["BASE_FOLDER"] =  f"./db/bundles/{parsed_document.source_document.pdf_hash}"
+    
+    from p6t.tools.api import app
+    uvicorn.run(app, host="localhost", port=8080)
 
 def cmd_init(args):
     print("Bootstrapping project libraries...")

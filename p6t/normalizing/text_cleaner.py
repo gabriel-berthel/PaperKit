@@ -81,17 +81,25 @@ class TextCleaner:
         latex = re.sub(r'\\[a-zA-Z]+\{[^{}]*\}', save, latex)
         latex = re.sub(r'\\[a-zA-Z]+', save, latex)
         latex = re.sub(r' ', '', latex)
+        latex = re.sub(r'>', ' > ', latex)
+        latex = re.sub(r'<', ' < ', latex)
 
         for i, value in enumerate(protected):
             latex = latex.replace(f"@@{i}@@", f' {value} ')
             
-        return latex
+        return latex.strip()
     
     @staticmethod
     def normalize_inlined_maths(text):
         def repl(match):
             latex = match.group(1)
-            return f"$ {TextCleaner.crush_latex_spaces(latex)} $"
+            
+            if re.match(r'\\[a-zA-Z]+', latex):
+                return f" $ {TextCleaner.crush_latex_spaces(latex)} $ "
+            else:
+                text = texer.latex_to_text(latex)
+                text = re.sub(r'(\^[\S+])', r'$\1$', text)
+                return text
  
         return re.sub(r"<math(?: [^>]+)?>(.*?)</math>", repl, text, flags=re.DOTALL)
     
@@ -168,6 +176,9 @@ class TextCleaner:
 
         # Mask decimals: 3.14, .5
         mask(r'\d*\.\d+')
+        
+        # et al. kinda abbr
+        mask(r'\w\.\'')
 
         # Mask thousands separators: 1,000 / 1,000,000
         mask(r'\d{1,3}(?:,\d{3})+')

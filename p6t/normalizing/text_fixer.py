@@ -323,18 +323,19 @@ class TextFixer:
         In practice this yields clean enough results.
         """
                 
-        filtered_html = re.sub(r'$(.*?)$', ' ', text)
+        filtered_html = re.sub(r'\$(.*?)\$', ' ', text)
         filtered_html = " ".join(re.findall(r'\b[a-z][a-z-\']*\b', filtered_html))
         
         tool.enabled_rules_only = True
         tool.enabled_rules = set(["MORFOLOGIK_RULE_EN_US"])
         
         matches = tool.check(filtered_html)
+        latex_formulas = re.findall(r'\$(.*?)\$', text)
         for match in matches:
             original_text = filtered_html[match.offset : match.offset + match.error_length]
             top_fix = match.replacements[0] if match.replacements else None
             
-            if top_fix and top_fix.islower():
+            if top_fix and top_fix.islower() and not top_fix in latex_formulas:
                 text = text.replace(original_text, top_fix)
         
         return text

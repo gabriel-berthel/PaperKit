@@ -1,12 +1,15 @@
 import io
+import os
 import re
 import unicodedata
 import wave
 
 from fastapi import APIRouter, Request, Response
-
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from p6t.tools.bootsrap import init_piper
-from p6t.tools.core import gliner_probe
+from p6t.tools.core.gliner_probe import gliner_probe
 from p6t.tools.core.llm import llm_explain_term, llm_simple_task, llm_simplify_text
 from p6t.tools.utils.model import EntityProbe, TermInContextRequest, TextRequest, TextResponse
 from p6t.tools.core.summary import single_paragraph_summury_pipeline
@@ -18,18 +21,53 @@ from p6t.tools.conf import settings
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.voice = init_piper(settings.piper_voice)
     yield
     app.state.voice = None
-
+    
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 router = APIRouter(prefix="/api")
 app.include_router(router)
 
+# ---------- Paper ---------- 
+
+
+app.mount(
+    "/js",
+    StaticFiles(directory=f"{os.environ["BASE_FOLDER"]}/js"),
+    name="js",
+)
+
+app.mount(
+    "/css",
+    StaticFiles(directory=f"{os.environ["BASE_FOLDER"]}/css"),
+    name="css",
+)
+
+app.mount(
+    "/media",
+    StaticFiles(directory=f"{os.environ["BASE_FOLDER"]}/media"),
+    name="media",
+)
+
+@app.get("/")
+async def root():
+    return FileResponse(
+        f"{os.environ['BASE_FOLDER']}/index.html"
+    )
+    
 
 # ---------- TTS ---------- 
 @router.post("/tts")
@@ -134,7 +172,12 @@ async def simplify_wording(payload: TextRequest) -> TextResponse:
     return TextResponse(
         text=await llm_simple_task(payload.text, "Rewrite in simpler words without changing structure.")
     )
-
+    
+@router.post("/simplify/formula")
+async def simplify_caption_content(payload: TextRequest) -> TextResponse:
+    return TextResponse(
+        text=await llm_simple_task(payload.text, "Convert this mathematical expression into the way it would be naturally spoken aloud in English.")
+    )
 
 @router.post("/simplify/caption")
 async def simplify_caption_content(payload: TextRequest) -> TextResponse:

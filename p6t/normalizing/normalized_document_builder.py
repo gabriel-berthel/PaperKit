@@ -385,9 +385,6 @@ class NormalizedDocumentBuilder:
         # Removing leading bullet marker
         text = TextCleaner.clean_bullet_text(text)
         
-        # Emoticons that weren't ocred.
-        text = re.sub(r'(\s+)', '', text)  
-        
         text = re.sub(r'\s+', ' ', text).strip()
         
         return text.strip()
@@ -440,7 +437,7 @@ class NormalizedDocumentBuilder:
             
             # Most likely miscartegorized header!
             if e.label == "code" and len(e.orig) < 10:
-                e.label = "DISCARD"
+                e.label = "_DISCARD_"
                     
         self.log('Applying text normalization to elements', 0)       
         for e, _ in self.docling_document.iterate_items():
@@ -462,7 +459,9 @@ class NormalizedDocumentBuilder:
                 e.text = self.clean_footnote(e.orig, e.text)
             elif e.label == 'code':
                 e.text = TextCleaner.remove_latex_formatting(e.text)
-                
+            elif e.label == 'caption':
+                e.text = self.clean_text(e.text)
+            
         self.log('Discarding OCR soup', 0)  
         for e, _ in self.docling_document.iterate_items():
         # No english words
@@ -472,10 +471,7 @@ class NormalizedDocumentBuilder:
                 if not TextFixer.has_known_word(e.text):
                     self.log(f'Discarding {e.self_ref}' , 1)
                     e.label = "__DISCARD__"
-                else:
-                    if len(e.text) < 10:
-                        self.log(f'not Discarding {e.text}' , 1)
-                        
+
         self.log('Extracting title', 0)
         paper_title =[e.text for e,_ in list(self.docling_document.iterate_items()) if e.label == 'section_header'][0]
         
