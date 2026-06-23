@@ -94,7 +94,8 @@ class TextCleaner:
         def repl(match):
             latex = match.group(1)
             
-            if latex.strip() == texer.latex_to_text(latex).strip():
+            if (latex.strip() == texer.latex_to_text(latex).strip()) \
+            and not re.match(r'[A-Za-z]+\([^\)]\)', latex) or re.match(r'[A-Za-z]+\[[^\]]\]', latex) :
                 return latex
             
             return f" $ {TextCleaner.crush_latex_spaces(latex)} $ "
