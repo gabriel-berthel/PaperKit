@@ -6,26 +6,15 @@ from typing import List
 from PIL.Image import Image as PILImage
 
 class SuryaLatexOCR():
-    
-    def run_formulas(self, images: List[PILImage]) -> List[str]:
-        foundation_predictor = FoundationPredictor()
-        rec_predictor = RecognitionPredictor(foundation_predictor)
-        
-        
-        tasks = [TaskNames.block_without_boxes] * len(images)
-        bboxes = [[[0, 0, img.width, img.height]] for img in images]
-        
-        predictions = rec_predictor(
-            images,
-            tasks,
-            bboxes=bboxes,
-        )
+    _instance = None
 
-        return [
-            p.text_lines[0].text if p.text_lines else ""
-            for p in predictions
-        ]
-        
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            foundation = FoundationPredictor()
+            cls._instance.predictor = RecognitionPredictor(foundation)
+        return cls._instance
+
     def run_blocks(self, images):
         
         foundation_predictor = FoundationPredictor()
@@ -39,6 +28,7 @@ class SuryaLatexOCR():
             det_predictor=det_predictor,
             math_mode=True,
         )
+
 
         return [
             "\n".join(line.text for line in p.text_lines) if p.text_lines else ""

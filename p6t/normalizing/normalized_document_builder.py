@@ -413,7 +413,7 @@ class NormalizedDocumentBuilder:
         return text
 
 
-    def build(self) -> NormalizedDocument:
+    def build(self) -> NormalizedDocument:    
         # During cleaning:
         # - Spaces are normalized around punctuation.
         # - Unicode characters are collapsed to ASCII equivalents.
