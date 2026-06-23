@@ -1,4 +1,4 @@
-import { simplify, MODES, fetchWhatIsIt, summarize, fixText } from "../api/actions.js";
+import { simplify, MODES, fetchWhatIsIt, summarize } from "../api/actions.js";
 import { withUI } from "../dom/ui_freeze.js";
 import { state } from "../state.js";
 import { revertAnnotations, run_all_annotations } from "../marking/annotation.js";
@@ -39,11 +39,9 @@ const canSimplify   = (text,  multiBlock) => !multiBlock && isLongEnough(text);
 const canExplain    = (text,  multiBlock) => !multiBlock && isShortSelection(text);
 const canRemove     = () => true;
 const canCancel     = () => true;
-const canFix   = (text,  multiBlock) => !multiBlock && isShortSelection(text);
 
 const ACTION_CONDITIONS = {
   group:             canGroup,
-  "fix-text": canFix,
   "simplify-student": canSimplify,
   "simplify-expert":  canSimplify,
   "summarize":  canSimplify,
@@ -86,16 +84,6 @@ async function runSummary() {
   if (!clone) {return;}
 
   await withUI(() => summarize(revertAnnotations(clone).textContent))
-    .then((result) => replaceSelection(result.text))
-    .catch(() => null);
-  push();
-}
-
-async function runFixText(mode) {
-  const clone = cloneSelectionToDiv();
-  if (!clone) {return;}
-
-  await withUI(() => fixText(clone.textContent, mode))
     .then((result) => replaceSelection(result.text))
     .catch(() => null);
   push();
@@ -156,7 +144,6 @@ const ACTIONS = [
   { id: "group",            label: "🔗 Group",             run: runGroup            },
   { id: "remove",           label: "🗑️ Remove",            run: runRemove           },
   { id: "summarize",  label: "💬 Summarize",  run: runSummary   },
-  { id: "fix-text", label: "✨ Fix Text", run: runFixText  },
   { id: "simplify-student", label: "🎓 Simplify (Student)", run: runSimplifyStudent  },
   { id: "simplify-expert",  label: "🧠 Simplify (Expert)",  run: runSimplifyExpert   },
   { id: "explain",          label: "📖 Explain",            run: runExplain          },

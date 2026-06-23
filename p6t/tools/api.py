@@ -162,12 +162,6 @@ async def simplify_wording(payload: TextRequest) -> TextResponse:
         text=await llm_simple_task(payload.text, "Rewrite in simpler words without changing structure.")
     )
     
-@router.post("/fixtext")
-async def simplify_wording(payload: TextRequest) -> TextResponse:
-    return TextResponse(
-        text=await llm_simple_task(payload.text, "Correct and reconstruct the OCR-extracted text.")
-    )    
-
 @router.post("/simplify/formula")
 async def simplify_caption_content(payload: TextRequest) -> TextResponse:
     response = TextResponse(
