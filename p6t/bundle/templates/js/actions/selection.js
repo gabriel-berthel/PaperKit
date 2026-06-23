@@ -13,7 +13,7 @@ const MIN_WORDS_FOR_SIMPLIFY = 6;
  * Element types that snap the selection to their outer boundary when partially
  * selected (tables, figures, etc. should always be selected whole or not at all).
  */
-const SNAP_SELECTOR = typeSelector("table", "figure", "reference", "footnote", "inline-maths");
+const SNAP_SELECTOR = typeSelector("table", "figure", "reference", "footnote", "inline");
 
 /**
  * Element types that can host a selection toolbar (paragraph-level blocks).
@@ -70,10 +70,14 @@ function cloneSelectionToDiv() {
 async function runSimplify(mode) {
   const clone = cloneSelectionToDiv();
   if (!clone) {return;}
-
-  clone.querySelectorAll(".inline-maths").forEach(el => el.textContent = el.dataset.latex)
-
-  await withUI(() => simplify(revertAnnotations(clone).textContent, mode))
+  await withUI(
+      () => {
+        clone.querySelectorAll("[data-type='inline']").forEach(el => el.textContent = simplify(el.dataset.latex, MODES.FORMULA))
+        let unannotated = revertAnnotations(clone).textContent;
+        
+        return simplify(unannotated, mode);
+      }
+    )
     .then((result) => replaceSelection(result.text))
     .catch(() => null);
   push();
@@ -83,7 +87,14 @@ async function runSummary() {
   const clone = cloneSelectionToDiv();
   if (!clone) {return;}
 
-  await withUI(() => summarize(revertAnnotations(clone).textContent))
+  await withUI(
+    () => {
+      clone.querySelectorAll("[data-type='inline']").forEach(el => el.textContent = simplify(el.dataset.latex, MODES.FORMULA))
+      let unannotated = revertAnnotations(clone).textContent;
+      
+      return summarize(unannotated);
+    }
+  )
     .then((result) => replaceSelection(result.text))
     .catch(() => null);
   push();

@@ -1,7 +1,7 @@
 import { request, ENDPOINTS } from "./utils.js";
 
 const STRIP_SELECTORS = [
-  'span[data-type="inline-maths"]',
+  'span[data-type="inline"]',
   'span[data-type="reference"]',
   'span[data-type="footnote"]',
   'mark[data-type="entity"]',

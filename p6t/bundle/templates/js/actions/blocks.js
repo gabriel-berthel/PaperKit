@@ -8,22 +8,6 @@ import { removeEl, makeDataTypeEl } from "../dom/element.js";
 
 // ── Action functions ──────────────────────────────────────────────────────────
 
-async function summarizeEl(el) {
-  const clone = revertAnnotations(el);
-  await withUI(() => summarize(clone.textContent))
-    .then((result) => { el.innerHTML = run_all_annotations(result.text); })
-    .catch(() => null);
-  push();
-}
-
-async function simplifyMathEl(el) {
-  const clone = revertAnnotations(el);
-  await withUI(() => simplify(clone.textContent, MODES.MATHS))
-    .then((result) => { el.innerHTML = run_all_annotations(result.text); })
-    .catch(() => null);
-  push();
-}
-
 /**
  * Splits the child nodes of `el` into sentence-boundary groups.
  * Text nodes are split on sentence-ending punctuation; element nodes are kept
@@ -73,13 +57,6 @@ function toParagraphEl(el) {
   push();
 }
 
-async function toClearSpeakFormula(el) {
-  el.innerHTML     = await SREConvertion(el.dataset.latex);
-  el.dataset.type  = "paragraph";
-  jumpAndFlash(el);
-  push();
-}
-
 /**
  * Replaces a formula block with a plain paragraph containing the speechified text.
  * Flashes the new paragraph (not the removed element).
@@ -97,43 +74,26 @@ async function simplifyFormulaEl(el) {
   push();
 }
 
-async function describeCodeEl(el) {
-  const text = await withUI(() => simplify(el.textContent, MODES.CODE))
-    .then((r) => r.text)
-    .catch(() => null);
-
-  const paragraph = makeDataTypeEl("paragraph");
-  paragraph.textContent = text;
-  el.insertAdjacentElement("beforebegin", paragraph);
-  el.remove();
-  jumpAndFlash(paragraph);
-  push();
-}
 
 // ── Action registry ───────────────────────────────────────────────────────────
 //
 // Each entry: { id, tooltip, icon, run, match? }
 // `match` is an optional predicate (el) => boolean; omit to always show.
 
-const SUMMARIZE  = { id: "summarize",    tooltip: "Summarize All",    icon: "💬", run: summarizeEl   };
 const PLAY       = { id: "playTTS",      tooltip: "Play",         icon: "▶️", run: playFrom      };
 const DELETE     = { id: "removeEl",     tooltip: "Delete",       icon: "❌", run: removeEl      };
 const BULLETIZE  = { id: "bulletize",    tooltip: "Bulletize",    icon: "●", run: bulletizeEl   };
 const PARAGRAPHI = { id: "paragraphize", tooltip: "Make paragraph",icon: "§",run: toParagraphEl };
 
 const BLOCK_ACTIONS = {
-  paragraph:      [SUMMARIZE, PLAY, BULLETIZE, DELETE],
-  bullet:         [SUMMARIZE, PLAY, PARAGRAPHI, DELETE],
-  "caption-bloc": [SUMMARIZE, PLAY, DELETE],
+  paragraph:      [PLAY, BULLETIZE, DELETE],
+  bullet:         [PLAY, PARAGRAPHI, DELETE],
   heading:        [PLAY, PARAGRAPHI, DELETE],
   code: [
-    { id: "simplify-code",    tooltip: "Describe code", icon: "🔍", run: describeCodeEl    },
     PLAY,
     DELETE,
   ],
   formula: [
-    { id: "toClearspeak",     tooltip: "Clearspeak",    icon: "🔤", run: toClearSpeakFormula },
-    { id: "simplifyFormula",  tooltip: "Speechify",     icon: "🗣️", run: simplifyFormulaEl  },
     PLAY,
     DELETE,
   ],

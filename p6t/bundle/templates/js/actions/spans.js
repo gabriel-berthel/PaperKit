@@ -1,4 +1,4 @@
-import { simplify, MODES, SREConvertion } from "../api/actions.js";
+import { simplify, MODES, SREConvertion, summarize} from "../api/actions.js";
 import { withUI } from "../dom/ui_freeze.js";
 import { resolveRefs } from "../dom/prefetch.js";
 import { jumpAndFlash } from "../dom/scroll.js";
@@ -29,7 +29,7 @@ function openUrlEl(el) {
   if (confirm(`Open link?\n${url}`)) {window.open(url, "_blank");}
 }
 
-/** Replaces an inline-maths span with plain speechified text then unwraps it. */
+/** Replaces an inline span with plain speechified text then unwraps it. */
 async function speechifyMathsEl(el) {
   const clone = revertAnnotations(el);
   await withUI(() => simplify(clone.dataset.latex, MODES.FORMULA))
@@ -41,39 +41,79 @@ async function speechifyMathsEl(el) {
   push();
 }
 
-/** Unwraps a span, keeping its text content. */
-function toTextEl(el) {
-  el.replaceWith(...el.childNodes);
-  push();
-}
-
-async function summarizeInlineCaption(el) {
-  await withUI(() => simplify(el.textContent, MODES.CAPTION))
-    .then((result) => { el.innerHTML = `(${result.text})`; })
-    .catch(() => null);
-  push();
-}
-
-async function simplifyWordingEl(el) {
-  const clone = revertAnnotations(el);
-  await withUI(() => simplify(clone.textContent, MODES.WORDING))
-    .then((result) => { el.innerHTML = `(${result.text})`; })
-    .catch(() => null);
-  push();
-}
 
 async function sreSpeechify(el) {
   const text = await SREConvertion(el.textContent);
+
   el.parentNode.insertBefore(document.createTextNode(text), el);
   el.remove();
   push();
 }
 
+async function summarizeEl(el) {
+  const clone = revertAnnotations(el);
+
+  await withUI(
+      () => {
+        clone.querySelectorAll("[data-type='inline']").forEach(el => el.textContent = simplify(el.dataset.latex, MODES.FORMULA))
+        let unannotated = revertAnnotations(clone).textContent;
+        return summarize(unannotated);
+      }
+    )
+    .then((result) => { el.innerHTML = run_all_annotations(result.text); })
+    .catch(() => null);
+  push();
+}
+
+async function simplifyWording(el) {
+  const clone = revertAnnotations(el);
+
+  await withUI(
+      () => {
+        clone.querySelectorAll("[data-type='inline']").forEach(el => el.textContent = simplify(el.dataset.latex, MODES.FORMULA))
+        let unannotated = revertAnnotations(clone).textContent;
+        return simplify(unannotated, MODES.WORDING);
+      }
+    )
+    .then((result) => { el.innerHTML = run_all_annotations(result.text); })
+    .catch(() => null);
+  push();
+}
+
+async function toClearSpeakFormula(el) {
+  el.innerHTML     = await SREConvertion(el.dataset.latex);
+  el.dataset.type  = "paragraph";
+  jumpAndFlash(el);
+  push();
+}
+
+async function simplifyFormulaEl(el) {
+  const text = await withUI(() => simplify(el.dataset.latex, MODES.FORMULA))
+    .then((r) => r.text)
+    .catch(() => null);
+
+  el.textContent = text;
+  el.dataset.type = "paragraph"
+  jumpAndFlash(el);
+  push();
+}
+async function describeCodeEl(el) {
+  const text = await withUI(() => simplify(el.textContent, MODES.CODE))
+    .then((r) => r.text)
+    .catch(() => null);
+
+  el.textContent = text;
+  el.dataset.type = "paragraph"
+  jumpAndFlash(el);
+  push();
+}
+
+
 // ── Match predicates ──────────────────────────────────────────────────────────
 
 const isUrl            = (el) => !!el.dataset.url;
 const isNotUrl         = (el) => !el.dataset.url;
-const hasNoCaption     = (el) => el.nextElementSibling?.dataset.type !== "inline-caption";
+const hasNoCaption     = (el) => el.nextElementSibling?.dataset.type !== "caption";
 const isFootnoteBullet = (el) => el.classList.contains("footnote-bullet");
 const isTextRef        = (el) => el.classList.contains("text-ref");
 const isNonNarrative   = (el) => el.dataset.narrative === "false";
@@ -81,19 +121,37 @@ const isNonNarrative   = (el) => el.dataset.narrative === "false";
 // ── Action registry ───────────────────────────────────────────────────────────
 
 const SPAN_ACTIONS = {
-  "inline-maths": [
+  inline: [
     { id: "speechify",  label: "LM Speechify", run: speechifyMathsEl },
     { id: "clearspeak", label: "Clearspeak",   run: sreSpeechify      },
-    { id: "toText",     label: "To text",      run: toTextEl          },
+  ],
+
+  formula: [
+    { id: "speechify",  label: "LM Speechify", run:  simplifyFormulaEl  },
+    { id: "clearspeak", label: "Clearspeak",   run:  toClearSpeakFormula     },
+  ],
+
+  code: [
+    { id: "describe",  label: "LM Describe", run: describeCodeEl },
+  ],
+
+
+  paragraph: [
+    { id: "summarize",  label: "Summarize (ALL)", run: summarizeEl },
+    { id: "summarize",  label: "Simplify wording (ALL)", run: simplifyWording },
+  ],
+
+  bullet: [
+    { id: "summarize",  label: "Summarize ALL", run: summarizeEl },
+    { id: "summarize",  label: "Simplify wording (ALL)", run: simplifyWording },
   ],
 
   // table and figure share the same actions
-  table:  captionActions(),
-  figure: captionActions(),
+  table:  [{ id: "insert-caption-below",  label: "Insert caption below",   run: (el) => insertCaption(el, "below")}],
+  figure: [{ id: "insert-caption-below",  label: "Insert caption below",   run: (el) => insertCaption(el, "below")}],
 
   footnote: [
     { id: "open-url",             label: "Open link",            run: openUrlEl,        match: isUrl                                    },
-    { id: "insert-caption-inline",label: "Insert caption in text",run: (el) => insertCaption(el, "inline"), match: (el) => isNotUrl(el) && hasNoCaption(el) },
     { id: "insert-caption-below", label: "Insert caption below", run: (el) => insertCaption(el, "below"),  match: isNotUrl                                 },
     { id: "to-text-ref",          label: "Turn to text ref",     run: footnoteToTextRef,match: isFootnoteBullet                          },
     { id: "to-bullet",            label: "Turn to bullet",       run: footnoteToBullet, match: isTextRef                                 },
@@ -105,12 +163,6 @@ const SPAN_ACTIONS = {
     { id: "remove",   label: "Remove",    run: removeEl                },
   ],
 
-  "inline-caption": [
-    { id: "summarize", label: "Summarize",        run: summarizeInlineCaption },
-    { id: "simplify",  label: "Simplify wording", run: simplifyWordingEl      },
-    { id: "remove",    label: "Remove",           run: removeEl               },
-  ],
-
   reference: [
     { id: "remove", label: "Remove", run: removeEl, match: isNonNarrative },
   ],
@@ -120,32 +172,29 @@ const SPAN_ACTIONS = {
   ],
 };
 
-function captionActions() {
-  return [
-    { id: "insert-caption-inline", label: "Insert caption in text", run: (el) => insertCaption(el, "inline"), match: hasNoCaption },
-    { id: "insert-caption-below",  label: "Insert caption below",   run: (el) => insertCaption(el, "below")                      },
-  ];
-}
 
 // ── Caption insertion ─────────────────────────────────────────────────────────
 
 function buildCaptionText(el) {
   return resolveRefs(el)
     .filter((c) => c.caption)
-    .map((c) => c.caption)
+    .map((c) => c.caption.trim())
     .join(" ; ");
 }
 
 function insertCaptionInline(el, rawCaption) {
   const span         = document.createElement("span");
-  span.dataset.type  = "inline-caption";
-  span.innerHTML     = `(${rawCaption.replace(/[.;,]+$/, "")})`;
+  
+  span.dataset.type  = "caption";
 
-  el.insertAdjacentText("afterend", " ");
+  rawCaption = ` (${rawCaption.replace(/[.;,]+$/, "")})`;
+  rawCaption = rawCaption.replaceAll(/(Table|Figure)\s+\S+/gi, "");
+  span.innerHTML = rawCaption
+
+  // el.insertAdjacentText("afterend", " ");
+  console.log(el)
   el.insertAdjacentElement("afterend", span);
 
-  // Strip "Table X" / "Figure X" labels from the inline caption.
-  span.innerText  = span.innerText.replaceAll(/(Table|Figure)\s+\S+/gi, "");
   span.innerHTML  = run_all_annotations(span.innerText);
 
   jumpAndFlash(span, "#fde68a");
@@ -171,7 +220,6 @@ function insertCaptionBelow(el, rawCaption) {
 
 function insertCaption(el, mode) {
   const caption = buildCaptionText(el);
-  if (mode === "inline") {insertCaptionInline(el, caption);}
   if (mode === "below")  {insertCaptionBelow(el, caption);}
 }
 

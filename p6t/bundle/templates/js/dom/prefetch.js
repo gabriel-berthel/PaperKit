@@ -9,6 +9,6 @@ export function resolveRefs(span) {
     const identifier = `${type}:${ref}`
     const caption    = document.querySelector(`[data-type="caption"][data-identifier="${identifier}"]`)
     if (!caption) return []
-    return [{ ref, identifier, caption: caption.innerHTML }]
+    return [{ ref, identifier, caption: caption.textContent }]
   })
 }

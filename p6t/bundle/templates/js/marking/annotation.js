@@ -4,12 +4,11 @@ import { maskTags, extractUrl } from '../dom/utils.js';
 // ── Annotators ────────────────────────────────────────────────────────────────
 
 export function markInlineMaths(text) {
-    return text.replace(
+  return text.replace(
     /\$(.*?)\$/g,
     (_, content) =>
-      ` <span data-type="inline-maths" data-latex="${content}">$ ${content} $</span>`
+      ` <span data-type="inline" data-latex="${content}">$ ${content} $</span>`
   );
-  return text
 }
 
 export function markTextRefs(text) {

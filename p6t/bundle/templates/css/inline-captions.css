@@ -1,4 +1,4 @@
-[data-type="inline-caption"] {
+[data-type="caption"] {
   color: inherit;
   opacity: 0.8;
   font-size: 1.0em;
@@ -6,6 +6,6 @@
   transition: opacity 0.15s ease;
 }
 
-[data-type="inline-caption"]:hover {
+[data-type="caption"]:hover {
   opacity: 1;
 }
