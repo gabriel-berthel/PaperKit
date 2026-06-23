@@ -178,7 +178,8 @@ class TextFixer:
         
         left = sentences[0]
         if TextFixer.is_heading(left):
-            return left, " ".join(sentences[1:]).strip()
+            right = text.split(".", maxsplit=1)[1]
+            return left, right.strip()
         
         return None, text
     

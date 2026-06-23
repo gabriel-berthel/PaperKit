@@ -1,6 +1,5 @@
 import json
 
-import httpx
 from pylatexenc.latex2text import LatexNodes2Text
 from ollama import AsyncClient
 
@@ -8,22 +7,27 @@ from p6t.tools.bootsrap import init_llama32
 
 init_llama32()
 
-timeout = httpx.Timeout(
-    connect=10.0,
-    read=120.0,
-    write=10.0,
-    pool=10.0,
-)
-
 texer = LatexNodes2Text()
-client = httpx.AsyncClient()
+
 
 async def ask_llm(system: str, user: str):
-    response = await AsyncClient().chat(model='llama3.2', 
+
+    response = await AsyncClient().chat(
+        model='llama3.2', 
         messages=[
             {"role": "system", "content": system},
             {"role": "user", "content": user}
-        ],format="json")
+        ],
+        format="json",
+        options={
+            'num_ctx': 32768, # up to 2^17
+            'temperature': 0,
+            'top_p':  1,
+            'top_k': 1,
+            'repeat_penalty': 1.00,
+            'num_predict':  -1,
+        }
+    )
 
     try:
         return json.loads(response.message.content)

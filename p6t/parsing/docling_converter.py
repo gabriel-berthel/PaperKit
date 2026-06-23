@@ -10,9 +10,9 @@ class DoclingConverter:
 
     def _build(self):
         self.pipeline_options = PdfPipelineOptions(
-            do_ocr=True,
-            do_formula_enrichment=True,
-            do_code_enrichment=False,
+            do_ocr=False,
+            do_formula_enrichment=False,
+            do_code_enrichment=True,
             images_scale=1.0,
 
         # Keep table structure enabled even though it's not used downstream.

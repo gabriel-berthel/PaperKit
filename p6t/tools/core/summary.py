@@ -15,16 +15,17 @@ def summarize(text:str):
     
     tokenizer = get_bart_pipeline().tokenizer
     input_token_count = len(tokenizer.encode(text))
-     
+    
     return get_bart_pipeline()(
         text,
         do_sample=False,
-        max_length=max(int(input_token_count * 0.8), 30),
-        min_length=min(int(input_token_count * 0.4), 15),
-        num_beams=4,
-        length_penalty=1.5,
-        no_repeat_ngram_size=3,
-        early_stopping=True
+        max_length=1024, # not nudging model toward brievty if input requires it
+        min_length=max(20, int(input_token_count * 0.4)),
+        num_beams=5,
+        length_penalty=1,
+        repetition_penalty=1.04,
+        no_repeat_ngram_size=2,
+        early_stopping=True,
     )
 
 def single_paragraph_summury_pipeline(text: str) -> dict:

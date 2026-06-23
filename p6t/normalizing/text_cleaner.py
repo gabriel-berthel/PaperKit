@@ -69,6 +69,23 @@ class TextCleaner:
         return  re.sub(r"<sup>(.*?)</sup>", r"footnote \1", text)
     
     @staticmethod
+    def normalize_latex(expr: str) -> str:
+        # collapse whitespace
+        expr = re.sub(r'\s+', ' ', expr)
+
+        # remove spaces around operators
+        expr = re.sub(r'\s*([=+\-*/^_(),])\s*', r'\1', expr)
+
+        # function tightening
+        expr = re.sub(r'([a-zA-Z]+)\s+\(', r'\1(', expr)
+
+        # normalize LaTeX spacing commands instead of deleting
+        expr = expr.replace(r'\,', ' ')
+        expr = expr.replace(r'\;', ' ')
+
+        return expr.strip()
+    
+    @staticmethod
     def crush_latex_spaces(latex):
         protected = []
 
@@ -80,7 +97,6 @@ class TextCleaner:
         
         latex = re.sub(r'\\[a-zA-Z]+\{[^{}]*\}', save, latex)
         latex = re.sub(r'\\[a-zA-Z]+', save, latex)
-        latex = re.sub(r' ([A-Za-z])+ ', '\1', latex)
         latex = re.sub(r' ', '', latex)
         latex = re.sub(r'>', ' > ', latex)
         latex = re.sub(r'<', ' < ', latex)
@@ -100,10 +116,10 @@ class TextCleaner:
             latex = match.group(1)
             
             if (latex.strip() == texer.latex_to_text(latex).strip()) \
-            and not re.match(r'[A-Za-z]+\([^\)]\)', latex) or re.match(r'[A-Za-z]+\[[^\]]\]', latex) :
+            and not re.match(r'[A-Za-z]+\([^\)]\)', latex) or re.match(r'[A-Za-z]+\S?\[[^\]]\]', latex) :
                 return latex
             
-            return f" $ {TextCleaner.crush_latex_spaces(latex)} $ "
+            return f" $ {TextCleaner.normalize_latex(latex)} $ "
             
         return re.sub(r"<math(?: [^>]+)?>(.*?)</math>", repl, text, flags=re.DOTALL)
     

@@ -95,6 +95,7 @@ class NormalizedDocumentBuilder:
                 starting_element = 1
                 section_node: IRSection = IRSection.build(e[0])
             else:
+                print(e[0].text)
                 heading, text = TextFixer.extract_heading(e[0].text)
                 
                 # If an heading is extracted
@@ -400,7 +401,7 @@ class NormalizedDocumentBuilder:
     def clean_formula(self, text):
         text = TextCleaner.remove_html_tags(text)
         text = TextCleaner.remove_latex_formatting(text)
-        text = TextCleaner.crush_latex_spaces(text)
+        text = TextCleaner.normalize_latex(text)
         text = TextCleaner.format_latex_alignment(text)
         
         # This is seems to be related to CodeFormulaV2
@@ -433,6 +434,7 @@ class NormalizedDocumentBuilder:
             if e.label == 'text':
                 self.log(f'Normalizing {e.self_ref}' , 1)
                 e.text = self.clean_text(e.text)
+                
             elif e.label == 'list_item':
                 self.log(f'Normalizing {e.self_ref}' , 1)
                 e.text = self.clean_text(e.text)
@@ -551,14 +553,13 @@ class NormalizedDocumentBuilder:
         self.log('Resolving missing headings', 1) 
         for section in sections:
             section.items = self._fix_headings(section.items)
-            
+
         self.log('Fixing hyphenation', 1) 
         for section in sections:
             for item in section.items:
                 # Fixing hyphenation
                 if isinstance(item, IRParagraph):
                     item.text = TextFixer.fix_hyphen(item.text)
-        
         # Reconstruct hierarchy from numbering. 
         # first header is top level, subsequent ones are parent + 1.
         self.log('Resolving section level', 1) 
