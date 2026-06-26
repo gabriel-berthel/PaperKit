@@ -19,7 +19,7 @@ def summarize(text:str):
     return get_bart_pipeline()(
         text,
         do_sample=False,
-        max_length=1024, # not nudging model toward brievty if input requires it
+        max_length=1024, # not nudging model toward brevity if input requires it
         min_length=max(20, int(input_token_count * 0.4)),
         num_beams=5,
         length_penalty=1,
@@ -28,7 +28,7 @@ def summarize(text:str):
         early_stopping=True,
     )
 
-def single_paragraph_summury_pipeline(text: str) -> dict:
+def single_paragraph_summary_pipeline(text: str) -> dict:
     """
     Summarizing using BART. The handles token count greater than ctx by trimming input content using LSA. 
     """
@@ -51,7 +51,7 @@ def lsa_filter_sentences(text: str, tokenizer, target_no_token = MAX_BART_CTX) -
     """
     Builds an extractive summary using LSA:
     - Sentences are ranked
-    - Summuary length is determined by target_no_token
+    - Summary length is determined by target_no_token
     """
     
     parser = PlaintextParser.from_string(text, Tokenizer("english"))

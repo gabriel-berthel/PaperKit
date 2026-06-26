@@ -69,7 +69,7 @@ class MediaResolver:
         Resolves pictures that share a caption by grouping adjacent ones.
 
         When two pictures appear side by side under a single caption, a human reads
-        it as one continuous zone. but the upstream parser.. it's two separate
+        it as one continuous zone. but the upstream parser. it's two separate
         picture elements with no attached caption. This method groups such adjacent
         pictures so they can be resolved together.
         """
@@ -196,7 +196,7 @@ class MediaResolver:
                 crop = self.source_document.crop(page_no, merged_bbox)
                 final.append((crop, caption.text))
                 
-                # mutating label so code block is discarded dowstream
+                # mutating label so code block is discarded downstream
                 code.label = "__discard__"
             
         return final

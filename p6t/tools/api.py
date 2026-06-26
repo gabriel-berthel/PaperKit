@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 
 from p6t.tools.core.gliner_probe import gliner_probe
 from p6t.tools.core.llm import llm_explain_term, llm_simple_task, llm_simplify_text
-from p6t.tools.core.summary import single_paragraph_summury_pipeline
+from p6t.tools.core.summary import single_paragraph_summary_pipeline
 from p6t.tools.core.wikipedia import wikipedia_best_match
 from p6t.tools.core.wordnet import get_wordnet_definition_in_context, word_in_wordnet
 from p6t.tools.utils.model import EntityProbe, TermInContextRequest, TextRequest, TextResponse
@@ -134,7 +134,7 @@ async def whatisit_term(payload: TermInContextRequest) -> TextResponse:
 # ---------- Summary ---------- 
 @router.post("/summarize")
 def build_overview(payload: TextRequest) -> TextResponse:
-    return TextResponse(text=single_paragraph_summury_pipeline(payload.text))
+    return TextResponse(text=single_paragraph_summary_pipeline(payload.text))
 
 
 

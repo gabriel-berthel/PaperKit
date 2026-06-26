@@ -92,7 +92,7 @@ class NormalizedDocumentBuilder:
             # By default, the starting element should be a header
             # Followed by content such as paragraph.
 
-            # If header can't be extracted, try extraxting header
+            # If header can't be extracted, try extracting header
             if e[0].label == 'section_header':
                 starting_element = 1
                 section_node: IRSection = IRSection.build(e[0])
@@ -100,7 +100,7 @@ class NormalizedDocumentBuilder:
                 print(e[0].text)
                 heading, text = TextFixer.extract_heading(e[0].text)
                 
-                # If an heading is extracted
+                # If a heading is extracted
                 # We mutate the element content to only keep the paragraph
                 if heading:
                     section_node: IRSection = IRSection(heading)
@@ -161,7 +161,7 @@ class NormalizedDocumentBuilder:
     
     def _discard_fake_headers(self, elements):
         """
-        Some headers might be sandwitched between non textual elements & are likely to be OCR artefacts.
+        Some headers might be sandwiched between non-textual elements & are likely to be OCR artifacts.
         """
         cleaned = []
         i = 0
@@ -189,7 +189,7 @@ class NormalizedDocumentBuilder:
     def _group_forward_code_blocks(self, elements):
         """
         Hardcoded heuristics to restore text continuity around identifiable structures.
-        Currently handles: Paragraph → [Floating 'Algorithm' + 'Code'] → Paragraph.
+        Currently, handles: Paragraph → [Floating 'Algorithm' + 'Code'] → Paragraph.
         Should be extended as new patterns are encountered.
         """
             
@@ -223,7 +223,7 @@ class NormalizedDocumentBuilder:
     def _group_forward_formula(self, elements):
         """
         Hardcoded heuristics to restore text continuity around identifiable structures.
-        Currently handles: Paragraph → [Floating 'Algorithm' + 'Code'] → Paragraph.
+        Currently, handles: Paragraph → [Floating 'Algorithm' + 'Code'] → Paragraph.
         Should be extended as new patterns are encountered.
         """
             
@@ -271,7 +271,7 @@ class NormalizedDocumentBuilder:
             if (
                 isinstance(current, IRParagraph) and not TextFixer.has_known_word(current.text)
             ):
-                # no known word at all => discad.
+                # no known word at all => discard.
                 i += 1
                 continue
 
@@ -363,13 +363,13 @@ class NormalizedDocumentBuilder:
         # Unifying spacing
         text = TextCleaner.unify_spacing(text)
         
-        # Removing unecessary LaTex formatting
+        # Removing unnecessary LaTex formatting
         text = TextCleaner.remove_latex_formatting(text)
         
-        # Converting to Ascii and using $ instead of math tags.
+        # Converting to ascii and using $ instead of math tags.
         text = TextCleaner.normalize_inlined_maths(text)
 
-        # Foonote normalisation
+        # Footnote normalization
         text = TextCleaner.textify_footnotes(text)
         
         # Collapsing texts refs into predictable words
@@ -378,7 +378,7 @@ class NormalizedDocumentBuilder:
         # Removing HTML tags
         text = TextCleaner.remove_html_tags(text)
 
-        # Fixing bracked refs.
+        # Fixing backed refs.
         text = TextCleaner.fix_and_collapse_bracket_ref(text)
     
         # Fixing broken words
@@ -406,7 +406,7 @@ class NormalizedDocumentBuilder:
         text = TextCleaner.normalize_latex(text)
         text = TextCleaner.format_latex_alignment(text)
         
-        # This is seems to be related to CodeFormulaV2
+        # This is seeming to be related to CodeFormulaV2
         text = text.rstrip('\\..')
         text = text.rstrip('\\,,')
         text = text.rstrip('\\,.')
@@ -425,9 +425,9 @@ class NormalizedDocumentBuilder:
         # - Broken OCR wording is repaired
         # - Broken OCR boundaries (missing punct) are repaired.
         # - After this step, tthere should be no remaining tags or odd latex formatting.
-        self.log('Picking best text origine', 0)
+        self.log('Picking best text origin', 0)
         for e, _ in self.docling_document.iterate_items():            
-            # Most likely miscartegorized header!
+            # Most likely uncategorized header!
             if e.label == "code" and len(e.orig) < 10:
                 e.label = "_DISCARD_"
                     
@@ -505,23 +505,23 @@ class NormalizedDocumentBuilder:
         # Discarding reference sections
         # Some important considerations
         # - Only "section_header" count as header during this phase
-        # - This assumption helps figuring levels downstream capture section header are likely to be main heading elements
+        # - This assumption helps to figure levels downstream capture section header are likely to be main heading elements
         self.log('Collecting sections', 0) 
         sections = self._collect_sections()
 
         # This improves readability, though the approach is admittedly hacky.
         # Most OCR artifacts seem to originate from bad crops during the Docling parse.
         # These are rare enough that other heuristics usually catch them before this point.
-        # This yields the need for further work to infer structure from these artificats.
+        # This yields the need for further work to infer structure from these artifacts.
         self.log('Discarding fake headers', 1) 
         for section in sections:
-            # Sandwitched heading (most likely part of a figure group that was re-OCRed)
+            # Sandwiched heading (most likely part of a figure group that was re-OCRed)
             section.items = self._discard_fake_headers(section.items)
 
         # Repairs sentence boundaries using a mix of deep learning and heuristics.
         #
         # Writers often compress space for publication by using bold text instead of proper headers.
-        # A parser can't infer that and it reads something like: "Fixing continuity We show that..."
+        # A parser can't infer that, and it reads something like: "Fixing continuity We show that..."
         # Similarly, words may be merged (thecat) or missing hyphens across line breaks.
         #
         # Headers are extracted in a later pass; at this stage we just want semantically cohesive text.
@@ -541,7 +541,7 @@ class NormalizedDocumentBuilder:
         # Only this case is handled for now. this function should be extended as more structures are encountered.
         #
         # Hardcoding is unavoidable here.
-        self.log('Fixing text continuty', 1) 
+        self.log('Fixing text continuity', 1)
         for section in sections:
             # Working backward
             section.items = self._group_paragraphs_backwards(section.items)
@@ -550,7 +550,7 @@ class NormalizedDocumentBuilder:
             section.items = self._group_forward_formula(section.items)
             
         # Extracts headers from reconstructed boundaries.
-        # While heuristics are good at detecting clear sentences, they may misclify edge case.
+        # While heuristics are good at detecting clear sentences, they may misclassify edge case.
         # Special cases should be added to TextUnifier.is_heading
         self.log('Resolving missing headings', 1) 
         for section in sections:

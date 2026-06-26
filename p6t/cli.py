@@ -233,7 +233,7 @@ def main():
     )
     serve_parser.set_defaults(func=cmd_serve)
         
-    # Bootrapping
+    # Bootstrapping
     init_parser = subparsers.add_parser(
         "init",
         help="Initialize the project environment"

@@ -293,7 +293,7 @@ class TextFixer:
         candidate_boundary = TextFixer.find_candidate_period(left)
         
         if candidate_boundary:
-            # Colon as boundary is likely to be already well formed.
+            # Colon as boundary is likely to be already well-formed.
             if text.startswith(candidate_boundary + ':'):
                 return text
             
@@ -341,34 +341,4 @@ class TextFixer:
             if top_fix and len(top_fix) !=  match.error_length and not top_fix in latex_formulas:
                 text = text.replace(original_text, top_fix)
         
-        return text
-
-        """
-        Strips formatting commands from LaTex.
-        Not removing them degrades LaTex handling dowstreams.
-        """
-        
-        # Font style commands (mathbf, mathtt, textbf, etc.)
-        for cmd in [
-            r'\\mathbf', r'\\mathtt', r'\\mathit', r'\\mathsf', r'\\mathbb', r'\\mathcal',
-            r'\\mathfrak', r'\\mathscr', r'\\mathrm', r'\\mathds',
-            r'\\textbf', r'\\texttt', r'\\textit', r'\\textrm', r'\\textsf',
-            r'\\textsc', r'\\textsl', r'\\emph', r'\\text',
-            r'\\boldsymbol', r'\\bm',
-        ]:
-            text = re.sub(cmd + r'\{([^}]*)\}', r'\1', text)
-
-        # Size commands with braces
-        for cmd in [
-            r'\\tiny', r'\\scriptsize', r'\\footnotesize', r'\\small',
-            r'\\normalsize', r'\\large', r'\\Large', r'\\LARGE',
-            r'\\huge', r'\\Huge',
-        ]:
-            text = re.sub(cmd + r'\{([^}]*)\}', r'\1', text)
-
-        # Color and box commands
-        for cmd in [r'\\textcolor\{[^}]*\}', r'\\colorbox\{[^}]*\}', r'\\fcolorbox\{[^}]*\}\{[^}]*\}']:
-            text = re.sub(cmd + r'\{([^}]*)\}', r'\1', text)
-            text = text.replace(r'\mathcal{E}', '&')
-            
         return text
