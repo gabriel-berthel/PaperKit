@@ -1,7 +1,9 @@
-import pickle
 import hashlib
+import pickle
 from pathlib import Path
+
 from p6t.persistance.conf import DB_CONFIG
+
 
 def _ensure_init():
     for loc in DB_CONFIG["locations"].values():

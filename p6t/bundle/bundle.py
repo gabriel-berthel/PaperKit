@@ -1,13 +1,14 @@
 import json
 import os
 import shutil
-
 from pathlib import Path
+
 from jinja2 import Environment, FileSystemLoader
 
 from p6t.model.normalized_document import NormalizedDocument
 from p6t.serialize.core import flatten_elements
 from p6t.serialize.serialize import serialize_json
+
 
 def load_index_template():
     templates_dir = Path("p6t/bundle/templates")

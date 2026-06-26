@@ -1,7 +1,8 @@
-from functools import lru_cache
 import asyncio
 import random
+from functools import lru_cache
 from urllib.parse import quote
+
 from curl_cffi.requests import AsyncSession
 from sentence_transformers import SentenceTransformer, CrossEncoder
 from sklearn.metrics.pairwise import cosine_similarity

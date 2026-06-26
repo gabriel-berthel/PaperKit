@@ -1,4 +1,3 @@
-from annotated_types import T
 from pydantic import BaseModel
 
 class TextRequest(BaseModel):

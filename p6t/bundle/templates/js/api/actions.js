@@ -1,4 +1,4 @@
-import { request, ENDPOINTS } from "./utils.js";
+import {ENDPOINTS, request} from "./utils.js";
 
 export const MODES = {
   EXPERT:  'expert',

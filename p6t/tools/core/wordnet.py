@@ -1,7 +1,7 @@
-from nltk.tokenize import sent_tokenize, word_tokenize
-from nltk.stem import WordNetLemmatizer
-from nltk.wsd import lesk
 from nltk.corpus import wordnet as wn
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.wsd import lesk
 
 from p6t.tools.bootsrap import ensure_nltk
 

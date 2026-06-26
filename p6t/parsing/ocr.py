@@ -1,9 +1,15 @@
-from typing import List
 from surya.foundation import FoundationPredictor
 from surya.recognition import DetectionPredictor, RecognitionPredictor
 from surya.common.surya.schema import TaskNames
 from typing import List
 from PIL.Image import Image as PILImage
+from typing import List
+
+from PIL.Image import Image as PILImage
+from surya.common.surya.schema import TaskNames
+from surya.foundation import FoundationPredictor
+from surya.recognition import DetectionPredictor, RecognitionPredictor
+
 
 class SuryaLatexOCR():
     

@@ -1,5 +1,7 @@
 import os
+
 from pydantic import BaseModel
+
 
 class Settings(BaseModel):
     llm_url: str = "http://localhost:11434/api/chat"

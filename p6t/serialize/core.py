@@ -1,5 +1,6 @@
 
 import base64
+
 from p6t.model.dto.ir_nodes import IRHeader, IRListItem, IRParagraph
 from p6t.model.normalized_document import NormalizedDocument
 

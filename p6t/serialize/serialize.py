@@ -1,9 +1,11 @@
 
 
-import json
 import html
+import json
+
 from p6t.model.dto.ir_nodes import IRCode, IRFormula, IRHeader, IRListItem, IRParagraph, IRFigure, IRTable
 from p6t.serialize.core import image_to_data_uri
+
 
 def serialize_html(ir_nodes):
     parts = [

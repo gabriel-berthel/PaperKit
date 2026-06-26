@@ -1,4 +1,4 @@
-import { request, ENDPOINTS } from "./utils.js";
+import {ENDPOINTS} from "./utils.js";
 
 const MAX_CACHE_SIZE = 50;
 const audioCache = new Map(); 

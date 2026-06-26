@@ -1,10 +1,9 @@
-import { simplify, MODES, summarize, SREConvertion } from "../api/actions.js";
-import { withUI } from "../dom/ui_freeze.js";
-import { revertAnnotations, run_all_annotations } from "../marking/annotation.js";
-import { playFrom } from "../tts/player.js";
-import { push } from "../dom/snapshots.js";
-import { jumpAndFlash } from "../dom/scroll.js";
-import { removeEl, makeDataTypeEl } from "../dom/element.js";
+import {MODES, simplify} from "../api/actions.js";
+import {withUI} from "../dom/ui_freeze.js";
+import {playFrom} from "../tts/player.js";
+import {push} from "../dom/snapshots.js";
+import {jumpAndFlash} from "../dom/scroll.js";
+import {makeDataTypeEl, removeEl} from "../dom/element.js";
 
 // ── Action functions ──────────────────────────────────────────────────────────
 

@@ -1,12 +1,11 @@
 # init_warmup.py
+import subprocess
+import time
 from functools import lru_cache
 from pathlib import Path
-import subprocess
-import logging
-import sys
-import time
 
 import ollama
+
 """# 1. Remove all existing handlers
 root = logging.getLogger()
 for h in root.handlers[:]:

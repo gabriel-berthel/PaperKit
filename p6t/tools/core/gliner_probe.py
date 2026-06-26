@@ -1,7 +1,7 @@
-from spacy.lang.en import English
 import torch
-
 from gliner2 import GLiNER2
+from spacy.lang.en import English
+
 gliner_model = GLiNER2.from_pretrained("fastino/gliner2-base-v1")
 
 

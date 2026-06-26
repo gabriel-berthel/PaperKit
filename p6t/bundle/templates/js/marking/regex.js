@@ -1,4 +1,4 @@
-import { STOP_WORDS } from './stopwords.js';
+import {STOP_WORDS} from './stopwords.js';
 
 export const REF_BRACKET_RE = /\s\[\d+(?:\s*[-–,]\s*\d+)*\]/g;
 

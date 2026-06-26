@@ -1,11 +1,10 @@
 import re
-from typing import List
+
+from PIL.Image import Image as PILImage
 from typing_extensions import final
 
 from p6t.model.dto.ir_interfaces import IRContainerNode, IRMediaAnchor, IRTextAnchor, IRTextNode
 
-
-from PIL.Image import Image as PILImage
 
 @final
 class IRSection(IRContainerNode):

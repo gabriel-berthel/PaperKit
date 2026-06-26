@@ -1,5 +1,5 @@
-import { state } from "../state.js";
-import { push } from "../dom/snapshots.js";
+import {state} from "../state.js";
+import {push} from "../dom/snapshots.js";
 
 // ── Toggle ────────────────────────────────────────────────────────────────────
 

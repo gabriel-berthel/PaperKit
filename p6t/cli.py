@@ -12,8 +12,8 @@ from p6t.parsing.parse import parse_and_push
 from p6t.persistance.db import db_get
 from p6t.serialize.core import flatten_elements
 from p6t.serialize.serialize import serialize_html, serialize_markdown, serialize_text
-
 from p6t.tools.bootsrap import boostrap_project_librairies
+
 
 def cmd_register(args):
     pdf_path = Path(args.pdf)

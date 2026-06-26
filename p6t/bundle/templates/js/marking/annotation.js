@@ -1,5 +1,5 @@
-import { REF_BRACKET_RE, IN_TEXT_AUTHOR_YEAR, AUTHOR_YEAR_RE, STOP_WORD_REF, REF_RE, IN_TEXT_AUTHOR_ETAL } from './regex.js';
-import { maskTags, extractUrl } from '../dom/utils.js';
+import {AUTHOR_YEAR_RE, IN_TEXT_AUTHOR_YEAR, REF_BRACKET_RE, REF_RE, STOP_WORD_REF} from './regex.js';
+import {extractUrl, maskTags} from '../dom/utils.js';
 
 // ── Annotators ────────────────────────────────────────────────────────────────
 

@@ -1,5 +1,5 @@
-import { withUI } from '../dom/ui_freeze.js';
-import { fetchAudio } from '../api/tts.js';
+import {withUI} from '../dom/ui_freeze.js';
+import {fetchAudio} from '../api/tts.js';
 
 export async function exportAudio() {
   const btn = document.querySelector('#export-tts-btn');

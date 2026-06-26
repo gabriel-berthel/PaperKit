@@ -1,12 +1,12 @@
-import { convert_all_footnotes_to_bullet, run_all_annotations} from "./marking/annotation.js";
-import { initSelectionToolbar } from './actions/selection.js'
-import { initBlockActions } from './actions/blocks.js'
-import { initSpanActions } from './actions/spans.js'
-import { initMediaPopup } from "./actions/medias.js";
-import { initCallouts } from "./marking/callouts.js";
-import { initSnapshots } from './dom/snapshots.js';
-import { initTTS } from './tts/player.js'
-import { initExplorer } from "./dom/explorer.js";
+import {convert_all_footnotes_to_bullet, run_all_annotations} from "./marking/annotation.js";
+import {initSelectionToolbar} from './actions/selection.js'
+import {initBlockActions} from './actions/blocks.js'
+import {initSpanActions} from './actions/spans.js'
+import {initMediaPopup} from "./actions/medias.js";
+import {initCallouts} from "./marking/callouts.js";
+import {initSnapshots} from './dom/snapshots.js';
+import {initTTS} from './tts/player.js'
+import {initExplorer} from "./dom/explorer.js";
 
 document.addEventListener('DOMContentLoaded', async () => {
   

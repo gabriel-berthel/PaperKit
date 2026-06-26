@@ -1,7 +1,7 @@
 import unicodedata
 
-from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer
+from sumy.parsers.plaintext import PlaintextParser
 
 from p6t.tools.bootsrap import get_bart_pipeline, get_summarizer
 

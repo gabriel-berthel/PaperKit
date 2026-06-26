@@ -1,22 +1,22 @@
 import os
-from pathlib import Path
 import subprocess
 import tempfile
 import unicodedata
+from pathlib import Path
 
 from fastapi import APIRouter, Response
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
+
 from p6t.tools.core.gliner_probe import gliner_probe
 from p6t.tools.core.llm import llm_explain_term, llm_simple_task, llm_simplify_text
-from p6t.tools.utils.model import EntityProbe, TermInContextRequest, TextRequest, TextResponse
 from p6t.tools.core.summary import single_paragraph_summury_pipeline
-from p6t.tools.utils.utils import chunk_paragraphs
 from p6t.tools.core.wikipedia import wikipedia_best_match
 from p6t.tools.core.wordnet import get_wordnet_definition_in_context, word_in_wordnet
-
-from fastapi import FastAPI
+from p6t.tools.utils.model import EntityProbe, TermInContextRequest, TextRequest, TextResponse
+from p6t.tools.utils.utils import chunk_paragraphs
 
 app = FastAPI()
 

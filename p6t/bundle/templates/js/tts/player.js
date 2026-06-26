@@ -1,8 +1,8 @@
 // tts-player.js
-import { jumpAndFlash } from '../dom/scroll.js';
-import { fetchAudio } from '../api/tts.js';
-import { speechify } from './speech.js';
-import { exportAudio } from './export.js';
+import {jumpAndFlash} from '../dom/scroll.js';
+import {fetchAudio} from '../api/tts.js';
+import {speechify} from './speech.js';
+import {exportAudio} from './export.js';
 
 let elements = [];
 let currentIndex = -1;

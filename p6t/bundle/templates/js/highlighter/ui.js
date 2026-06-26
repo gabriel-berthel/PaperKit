@@ -1,4 +1,4 @@
-import { highlightManager, toLabel } from './manager.js';
+import {highlightManager, toLabel} from './manager.js';
 
 const MAX_ENTITIES = 16;
 const chipList = document.getElementById('highlight-chips');

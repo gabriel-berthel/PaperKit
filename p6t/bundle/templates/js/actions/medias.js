@@ -1,4 +1,4 @@
-import { resolveRefs } from "../dom/prefetch.js";
+import {resolveRefs} from "../dom/prefetch.js";
 
 /**
  * actions/medias.js

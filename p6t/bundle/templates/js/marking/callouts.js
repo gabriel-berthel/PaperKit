@@ -1,5 +1,3 @@
-import { run_all_annotations } from "./annotation.js";
-
 const CALLOUT_PATTERN = /^(Definition|Theorem|Lemma|Proposition|Corollary|Table|Figure|Algorithm)\s*[\d.]*\s*:?/i;
 
 function applyCalloutStyling(el) {

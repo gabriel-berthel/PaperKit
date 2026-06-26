@@ -1,6 +1,7 @@
 
 import re
 import unicodedata
+
 from pylatexenc.latex2text import LatexNodes2Text
 
 texer = LatexNodes2Text()

@@ -1,16 +1,11 @@
-import { simplify, MODES, SREConvertion, summarize} from "../api/actions.js";
-import { withUI } from "../dom/ui_freeze.js";
-import { resolveRefs } from "../dom/prefetch.js";
-import { jumpAndFlash } from "../dom/scroll.js";
-import {
-  footnoteToBullet,
-  footnoteToTextRef,
-  run_all_annotations,
-  revertAnnotations,
-} from "../marking/annotation.js";
-import { push } from "../dom/snapshots.js";
-import { removeEl } from "../dom/element.js";
-import { openPopupMenu, initPopupMenu } from "../dom/popup_menu.js";
+import {MODES, simplify, SREConvertion, summarize} from "../api/actions.js";
+import {withUI} from "../dom/ui_freeze.js";
+import {resolveRefs} from "../dom/prefetch.js";
+import {jumpAndFlash} from "../dom/scroll.js";
+import {footnoteToBullet, footnoteToTextRef, revertAnnotations, run_all_annotations,} from "../marking/annotation.js";
+import {push} from "../dom/snapshots.js";
+import {removeEl} from "../dom/element.js";
+import {initPopupMenu, openPopupMenu} from "../dom/popup_menu.js";
 
 // ── Action functions ──────────────────────────────────────────────────────────
 

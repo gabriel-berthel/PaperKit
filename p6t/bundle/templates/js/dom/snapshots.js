@@ -1,4 +1,4 @@
-import { highlightManager } from "../highlighter/manager.js";
+import {highlightManager} from "../highlighter/manager.js";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 

@@ -1,11 +1,12 @@
 
 
-from p6t.persistance.db import db_get, db_push
+from docling_core.types.doc import DoclingDocument
+
 from p6t.model.parsed_document import ParsedDocument
 from p6t.model.source_document import SourceDocument
 from p6t.parsing.docling_converter import DoclingConverter
 from p6t.parsing.ocr import SuryaLatexOCR
-from docling_core.types.doc import DoclingDocument
+from p6t.persistance.db import db_push
 
 converter = DoclingConverter()
 surya = SuryaLatexOCR()

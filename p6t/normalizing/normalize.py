@@ -1,14 +1,9 @@
-
-
-from pathlib import Path
-
 from p6t.persistance.db import db_push
 from p6t.model.normalized_document import NormalizedDocument
-import pickle
 
-
-from p6t.model.parsed_document import ParsedDocument
 from p6t.normalizing.normalized_document_builder import NormalizedDocumentBuilder
+from p6t.persistance.db import db_push
+
 
 def normalize_document(parsed_document: ParsedDocument) -> NormalizedDocument:
     print("Building Normalized")

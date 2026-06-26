@@ -1,7 +1,8 @@
-from dataclasses import dataclass
 import itertools
+from dataclasses import dataclass
 
 from docling_core.types.doc import DoclingDocument
+
 from p6t.model.source_document import SourceDocument
 
 

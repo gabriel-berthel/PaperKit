@@ -1,6 +1,6 @@
-import { glinerMatchesFetch } from '../api/gliner.js';
-import { withUI } from '../dom/ui_freeze.js';
-import { push } from '../dom/snapshots.js';
+import {glinerMatchesFetch} from '../api/gliner.js';
+import {withUI} from '../dom/ui_freeze.js';
+import {push} from '../dom/snapshots.js';
 
 const ROOT_SELECTOR = '#app-content';
 const CACHE_KEY = 'highlight_entities_v1';

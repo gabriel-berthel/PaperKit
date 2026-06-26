@@ -1,4 +1,4 @@
-import { request, ENDPOINTS } from "./utils.js";
+import {ENDPOINTS} from "./utils.js";
 
 const STRIP_SELECTORS = [
   'span[data-type="inline"]',

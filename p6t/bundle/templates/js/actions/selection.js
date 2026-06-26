@@ -1,9 +1,9 @@
-import { simplify, MODES, fetchWhatIsIt, summarize } from "../api/actions.js";
-import { withUI } from "../dom/ui_freeze.js";
-import { state } from "../state.js";
-import { revertAnnotations, run_all_annotations } from "../marking/annotation.js";
-import { push } from "../dom/snapshots.js";
-import { resolveElement, typeSelector } from "../dom/element.js";
+import {fetchWhatIsIt, MODES, simplify, summarize} from "../api/actions.js";
+import {withUI} from "../dom/ui_freeze.js";
+import {state} from "../state.js";
+import {revertAnnotations, run_all_annotations} from "../marking/annotation.js";
+import {push} from "../dom/snapshots.js";
+import {resolveElement, typeSelector} from "../dom/element.js";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 

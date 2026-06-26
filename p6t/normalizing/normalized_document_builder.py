@@ -1,18 +1,20 @@
 import re
 
-from docling_core.types.doc import DoclingDocument
 import pytesseract
+from docling_core.types.doc import DoclingDocument
 
-from p6t.model.dto.ir_nodes import IRCode, IRFigure, IRFootnote, IRFormula, IRHeader, IRListItem, IRSection, IRTable, IRParagraph
-from p6t.model.source_document import SourceDocument
+from p6t.model.dto.ir_nodes import IRCode, IRFigure, IRFootnote, IRFormula, IRHeader, IRListItem, IRSection, IRTable, \
+    IRParagraph
+from p6t.model.dto.ir_tree import IRTree
 from p6t.model.normalized_document import NormalizedDocument
 from p6t.model.parsed_document import ParsedDocument
-from p6t.model.dto.ir_tree import IRTree
+from p6t.model.source_document import SourceDocument
 from p6t.normalizing.media_resolver import MediaResolver
 from p6t.normalizing.text_cleaner import TextCleaner
 from p6t.normalizing.text_fixer import TextFixer
 
-def is_abtract(heading: str) -> bool: 
+
+def is_abtract(heading: str) -> bool:
     return "abstract" in heading.lower()
 
 def is_biblio(heading: str) -> bool: 
