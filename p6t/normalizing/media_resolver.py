@@ -129,7 +129,20 @@ class MediaResolver:
 
     # ----------------- main pipeline -----------------
 
-    
+    def crop_to_caption(self, figure_box, caption_box, page_no):
+        
+        a = figure_box
+        b = caption_box
+        merged_bbox = type(a)(
+            l=min(a.l, b.l),
+            r=max(a.r, b.r),
+            t=a.t,   # top of code block (highest point)
+            b=b.t +3,   # top of caption = bottom limit
+        )
+        
+        crop = self.source_document.crop(page_no, merged_bbox)
+        return crop
+
     def run(self):
         """
         Fully autonomous pipeline:
@@ -158,13 +171,27 @@ class MediaResolver:
 
             # Could be multiple figure next to one another
             result = self.resolve_picture_group(media)
-
-            if not result:
+            if result:
+                merged, caption = result
+                final.append((merged, caption))
                 continue
-
-            merged, caption = result
-
-            final.append((merged, caption))
+            
+            # If right merge fails, we look for the first direct vertical merges
+            if not result:
+                filtered = [element for element, _ in self.document.iterate_items() if element.label in ['picture', 'caption']]
+                candidate_figure_idx = filtered.index(media)
+                candidate_caption = filtered[candidate_figure_idx + 1]
+                
+                if candidate_caption.label == "caption" \
+                and candidate_caption.prov[0].page_no == media.prov[0].page_no \
+                and all(c != candidate_caption.text for _, c in final):
+                    figure_bbox = media.prov[0].bbox
+                    caption_bbox = candidate_caption.prov[0].bbox
+                    page_no = candidate_caption.prov[0].page_no
+                    crop = self.crop_to_caption(figure_bbox, caption_bbox, page_no)
+                    
+                    final.append((crop, candidate_caption.text))
+                    continue
 
         # resolving missed code block figures
         # Assumption being code with a caption right bellow = a figure.
@@ -183,20 +210,13 @@ class MediaResolver:
                 caption = next_item
                 caption_bbox = caption.prov[0].bbox
                 page_no = caption.prov[0].page_no
-           
-                a = code_bbox
-                b = caption_bbox
-                merged_bbox = type(a)(
-                    l=min(a.l, b.l),
-                    r=max(a.r, b.r),
-                    t=a.t,   # top of code block (highest point)
-                    b=b.t + 10,   # top of caption = bottom limit
-                )
-                
-                crop = self.source_document.crop(page_no, merged_bbox)
+
+                crop = self.crop_to_caption(code_bbox, caption_bbox, page_no)
                 final.append((crop, caption.text))
                 
                 # mutating label so code block is discarded downstream
                 code.label = "__discard__"
             
         return final
+    
+    

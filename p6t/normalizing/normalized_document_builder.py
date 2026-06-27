@@ -28,6 +28,7 @@ class NormalizedDocumentBuilder:
     def __init__(self, parsed_document: ParsedDocument):   
         self.source_document: SourceDocument = parsed_document.source_document
         self.docling_document: DoclingDocument = parsed_document.docling_document
+    
 
     def _extract_references(self):
         ref_heading_found = False
