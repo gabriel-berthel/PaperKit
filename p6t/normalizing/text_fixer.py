@@ -339,6 +339,6 @@ class TextFixer:
             top_fix = match.replacements[0] if match.replacements else None
             
             if top_fix and len(top_fix) !=  match.error_length and not top_fix in latex_formulas:
-                text = text.replace(original_text, top_fix)
+                text = re.sub(rf'\b{match}\b', rf'\b{top_fix}\b', text)
         
         return text

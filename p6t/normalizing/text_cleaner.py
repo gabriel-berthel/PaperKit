@@ -9,6 +9,48 @@ texer = LatexNodes2Text()
 class TextCleaner:
     
     @staticmethod
+    def fix_ocr_brackets(ocr, backend):
+        def bracket_numbers(match):
+            text = re.sub(
+                r'(?<!\[)(?<![A-Za-z])(\d+)(?!\])(?![A-Za-z])',
+                r'[\1]',
+                match.group(0)
+            )
+            
+            # Removing commas
+            return text.replace(',', '')
+
+
+        # Fix missing brackets
+        ocr = re.sub(r'\s+(\d+)\]', r'[\1]', ocr)
+        ocr = re.sub(r'\[(\d+)\s+', r'[\1]', ocr)
+
+        # Identifies lists of numbers surrounding bracketed elements.
+        ocr = re.sub(
+            r'(?<!\w)(?:\[?\d+\]?)(?:[\s,]+\[?\d+\]?)*(?=\s|$)',
+            lambda m: bracket_numbers(m) if re.search(r'\[\d+\]', m.group(0)) else m.group(0),
+            ocr
+        )
+
+        # Identifies list of plain numbers
+        ocr = re.sub(
+            r'(?<!\w)\d+(?:\s+\d+)+(?!\w)',
+            bracket_numbers,
+            ocr
+        )
+
+        # Replacing backend-text ref into text
+        for w1, ref, after in re.findall(r'(\w+) \[(\d+)\](\s?[^\[\s])', backend):
+
+            replacement = rf'{re.escape(w1)} {ref}{re.escape(after)}'
+            
+            print(replacement)
+            
+            ocr = re.sub(replacement, rf'{w1} [{ref}]{after}', ocr)
+            
+        return ocr
+    
+    @staticmethod
     def match_case(replacement: str, original: str) -> str:
         if original.isupper():
             return replacement.upper()
@@ -133,7 +175,7 @@ class TextCleaner:
             
             if (latex.strip() == texer.latex_to_text(latex).strip()) \
             and not re.match(r'[A-Za-z]+\([^\)]\)', latex) or re.match(r'[A-Za-z]+\S?\[[^\]]\]', latex) \
-            and "_" not in latex:
+            or "_" not in latex:
                 return latex
             
             return f" $ {TextCleaner.normalize_latex(latex)} $ "

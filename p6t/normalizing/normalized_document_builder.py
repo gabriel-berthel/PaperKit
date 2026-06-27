@@ -417,6 +417,33 @@ class NormalizedDocumentBuilder:
 
 
     def build(self) -> NormalizedDocument:    
+        
+        # Proprocessing the parse
+        # - Discarding headers / footers categorized as code
+        # - Picking best source between OCR / backend-text
+        # - Repairing brackets if necessary
+        # TODO : Align sentence per sentence!
+        self.log('Preprocessing Parse output', 0)
+        for e, _ in self.docling_document.iterate_items():            
+            
+            # It seems some headers/footers may get categorized as code.
+            if e.label == "code" and len(e.orig) < 10:
+                e.label = "_DISCARD_"
+
+            # Picking backend text if possible, else repairing OCR output.
+            if e.label in ["text", "list_item", "footnote", "caption"]:
+                if r"<\sup>" in e.text or r"</math>" in e.text:
+                    # Removing line breaks 
+                    text = e.text
+                    text = re.sub(r'(\w+)-\s*\n\s*(\w+)', r'\1\2', text)
+                    text = re.sub('\n+', ' ', text)
+                    
+                    # Adding brackets where missed
+                    e.text = TextCleaner.fix_ocr_brackets(text, e.orig)
+                else:
+                    e.text = e.orig
+
+        
         # During cleaning:
         # - Spaces are normalized around punctuation.
         # - Unicode characters are collapsed to ASCII equivalents.
@@ -426,16 +453,6 @@ class NormalizedDocumentBuilder:
         # - Broken OCR wording is repaired
         # - Broken OCR boundaries (missing punct) are repaired.
         # - After this step, tthere should be no remaining tags or odd latex formatting.
-        self.log('Picking best text origin', 0)
-        for e, _ in self.docling_document.iterate_items():            
-            # Most likely uncategorized header!
-            if e.label == "code" and len(e.orig) < 10:
-                e.label = "_DISCARD_"
-            
-            if e.label in ["text", "list_item", "footnote", "caption"]:
-                if "</math>" or "</sup>" not in e.text:
-                    e.text = e.orig # better get backend-text
-                    
         self.log('Applying text normalization to elements', 0)       
         for e, _ in self.docling_document.iterate_items():
             if e.label == 'text':

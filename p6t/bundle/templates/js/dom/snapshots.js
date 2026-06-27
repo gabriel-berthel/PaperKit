@@ -2,7 +2,7 @@ import {highlightManager} from "../highlighter/manager.js";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const SNAPSHOT_KEY  = "app_snapshots_v1";
+const SNAPSHOT_KEY  = `app_snapshots_v1_${window.document_id}`;
 const AUTOSAVE_ID   = "autosave";
 const AUTOSAVE_NAME = "⏱ Last session (autosave)";
 const BASE_NAME     = "Base Document";

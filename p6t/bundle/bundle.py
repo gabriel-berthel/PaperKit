@@ -1,7 +1,9 @@
 import json
 import os
+import re
 import shutil
 from pathlib import Path
+from unicodedata import normalize
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -9,6 +11,27 @@ from p6t.model.normalized_document import NormalizedDocument
 from p6t.serialize.core import flatten_elements
 from p6t.serialize.serialize import serialize_json
 
+# Copied from
+# https://leancrew.com/all-this/2023/08/slugify-slight-return/
+def slugify(text):
+    '''Make an ASCII slug of text'''
+    
+    # Make lower case and delete apostrophes from contractions
+    slug = re.sub(r"(\w)['’](\w)", r"\1\2", text.lower())
+    
+    # Convert runs of non-characters to single hyphens, stripping from ends
+    slug = re.sub(r'[\W_]+', '-', slug).strip('-')
+    
+    # Replace a few special characters that normalize doesn't handle
+    specials = {'æ':'ae', 'ß':'ss', 'ø':'o'}
+    for s, r in specials.items():
+        slug = slug.replace(s, r)
+    
+    # Normalize the non-ASCII text
+    slug = normalize('NFKD', slug).encode('ascii', 'ignore').decode()
+    
+    # Return the transformed string
+    return slug
 
 def load_index_template():
     templates_dir = Path("p6t/bundle/templates")
@@ -83,7 +106,8 @@ def export_document(normalized_document: NormalizedDocument, output_folder):
             title=normalized_document.document_title,
             elements=section_elements,
             refs=refs,
-            references=normalized_document.references
+            references=normalized_document.references,
+            slug=slugify(normalized_document.document_title)
         ))
 
     # Bundling JS / CSS files
