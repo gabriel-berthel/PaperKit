@@ -1,3 +1,4 @@
+from p6t.model.parsed_document import ParsedDocument
 from p6t.persistance.db import db_push
 from p6t.model.normalized_document import NormalizedDocument
 

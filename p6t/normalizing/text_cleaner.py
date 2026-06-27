@@ -85,7 +85,7 @@ class TextCleaner:
         expr = expr.replace(r'\;', ' ')
 
         return expr.strip()
-    
+
     @staticmethod
     def crush_latex_spaces(latex):
         protected = []
@@ -107,17 +107,33 @@ class TextCleaner:
             
         return latex.strip()
     
+    
+    
     @staticmethod
     def normalize_inlined_maths(text):
         
-        # Unwrapping text from math
+        blocks = []
+
+        def protect(match):
+            blocks.append(match.group(0))
+            return f"__BLOCK{len(blocks)-1}__"
+
+        # Protecting content inside of braces
+        text = re.sub(r'\{[^{}]*\}', protect, text)
+        
+        # Unwrapping text within math
         text = re.sub(r'\\text\{([^}]*)\}', r'</math> \1 <math>', text)
+        
+        # removing masks
+        for i, block in enumerate(blocks):
+            text = text.replace(f"__BLOCK{i}__", block)
         
         def repl(match):
             latex = match.group(1)
             
             if (latex.strip() == texer.latex_to_text(latex).strip()) \
-            and not re.match(r'[A-Za-z]+\([^\)]\)', latex) or re.match(r'[A-Za-z]+\S?\[[^\]]\]', latex) :
+            and not re.match(r'[A-Za-z]+\([^\)]\)', latex) or re.match(r'[A-Za-z]+\S?\[[^\]]\]', latex) \
+            and "_" not in latex:
                 return latex
             
             return f" $ {TextCleaner.normalize_latex(latex)} $ "

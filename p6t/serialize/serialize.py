@@ -35,7 +35,7 @@ def serialize_html(ir_nodes):
             parts.append(f"<h{item.level}>{html.escape(item.text)}</h{item.level}>")
 
         elif isinstance(item, (IRTable, IRFigure)):
-            src = image_to_data_uri(item.image)
+            src = image_to_data_uri(item.img)
 
             parts.append("<figure>")
             parts.append(f"<img src='{src}' />")

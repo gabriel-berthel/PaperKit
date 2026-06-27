@@ -107,11 +107,9 @@ def probe_gliner(payload: EntityProbe) -> dict[str, list[str]]:
 
 # ---------- What is it ---------- 
 @router.post("/whatItIs")
-async def whatisit_term(payload: TermInContextRequest) -> TextResponse:
+async def search_what_the_term_is(payload: TermInContextRequest) -> TextResponse:
     term = payload.term
     context = payload.context
-
-    candidate_definition = ""
 
     try:
         if term.islower() and word_in_wordnet(term):
@@ -138,7 +136,7 @@ def build_overview(payload: TextRequest) -> TextResponse:
 
 
 
-# ---------- Simplifiers ---------- 
+# ---------- Simplifies ----------
 @router.post("/simplify/expert")
 async def simplify_text_expert(payload: TextRequest) -> TextResponse:
     return TextResponse(text=await llm_simplify_text(payload.text, level="graduate"))

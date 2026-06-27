@@ -35,7 +35,7 @@ async def ask_llm(system: str, user: str):
         return {"error": "Invalid LLM response", "raw": response}
 
 
-async def llm_simple_task(user, instr=str):
+async def llm_simple_task(user, instr: str):
     
     system = f"""
     [Task] {instr}

@@ -44,11 +44,11 @@ def get_wordnet_definition_in_context(full_text, target_word):
     context_window = sentences[start_idx:end_idx]
     optimized_context_str = " ".join(context_window)
     
-    # Lemmatization / Tokenisation
+    # Lemmatization / Tokenization
     context_tokens = word_tokenize(optimized_context_str.lower())
     lemmatized_tokens = [lemmatizer.lemmatize(t) for t in context_tokens]
     
-    # Using lesk to find best definition.
+    # Using Lesk to find best definition.
     best_synset = lesk(lemmatized_tokens, target_word.lower())
     
     if best_synset:

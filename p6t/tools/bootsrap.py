@@ -4,29 +4,8 @@ import time
 from functools import lru_cache
 from pathlib import Path
 
-import ollama
-
-"""# 1. Remove all existing handlers
-root = logging.getLogger()
-for h in root.handlers[:]:
-    root.removeHandler(h)
-
-# 2. Set maximum verbosity
-root.setLevel(logging.INFO)
-
-# 3. Add a clean console handler
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.INFO)
-
-formatter = logging.Formatter(
-    "%(asctime)s | %(name)s | %(levelname)s | %(message)s"
-)
-handler.setFormatter(formatter)
-
-root.addHandler(handler)
-"""
 def ensure_nltk():
-    print(f"Ensuring NLTK ressources")
+    print(f"Ensuring NLTK resources")
     import nltk
 
     resources = {
@@ -93,6 +72,7 @@ def init_gliner():
     print("Init: fastino/gliner2-base-v1")
     from gliner2 import GLiNER2
     model = GLiNER2.from_pretrained("fastino/gliner2-base-v1")
+    return model
     
 @lru_cache(maxsize=1)
 def init_spacy():
@@ -155,6 +135,7 @@ def init_piper(voice):
 
 def init_llama32():
     # Start Ollama in the background
+    import ollama
     print("Starting ollama")
     
     process = subprocess.Popen(

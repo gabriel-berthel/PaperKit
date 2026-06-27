@@ -28,7 +28,7 @@ class NormalizedDocumentBuilder:
     def __init__(self, parsed_document: ParsedDocument):   
         self.source_document: SourceDocument = parsed_document.source_document
         self.docling_document: DoclingDocument = parsed_document.docling_document
-    
+
     def _extract_references(self):
         ref_heading_found = False
         references = []
@@ -430,6 +430,10 @@ class NormalizedDocumentBuilder:
             # Most likely uncategorized header!
             if e.label == "code" and len(e.orig) < 10:
                 e.label = "_DISCARD_"
+            
+            if e.label in ["text", "list_item", "footnote", "caption"]:
+                if "</math>" or "</sup>" not in e.text:
+                    e.text = e.orig # better get backend-text
                     
         self.log('Applying text normalization to elements', 0)       
         for e, _ in self.docling_document.iterate_items():

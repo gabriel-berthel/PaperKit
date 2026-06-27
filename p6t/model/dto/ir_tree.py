@@ -4,33 +4,40 @@ from typing import List, Optional
 
 from p6t.model.dto.ir_interfaces import IRTextNode
 
-
-class IRTree:
-    
+class IRTreeNode:
     _id_counter = 0  # class variable (shared)
+
+    def __init__(self):
+        self.level = None
+        self.children = None
+        self.parent = None
+        self.id:int = type(self)._id_counter
+
+class IRTree(IRTreeNode):
     
-    def __init__(self, items, number_raw, number_parts, title, level = 0, pseudo_section=False):
-        self.items: Optional[List[IRTextNode]] = items
+    def __init__(self, items, number_raw, number_parts, title, level=0):
+
+        super().__init__()
+
+        self.items: List[IRTextNode] = items
         self.number_raw: Optional[str] = number_raw
         self.number_parts: Optional[List[int]] = number_parts
         self.title: Optional[str] = title
         self.level: int = level
-        self.children: List["IRTree"] = []
-        self.id:int = type(self)._id_counter 
-        self.parent: "IRTree" = None
-        
+        self.children: List[IRTreeNode] = []
+
         type(self)._id_counter += 1
     
     @property
     def full_title(self):
-        return f"[{self.number_raw}] {self.title}" if self.number_raw else self.title
+        return f"{self.number_raw}: {self.title}" if self.number_raw else self.title
     
     @staticmethod
     def build(sections) -> "IRTree":
-        
-        @staticmethod
+
+
         def split_numbering(text: str):
-            match = re.match(r'^(\d+(?:\.\d+)*)\s+(.*)', text)
+            match = re.match(r'^((?:[A-Za-z]+|\d+)(?:\.(?:[A-Za-z]+|\d+))*)\s+(.*)', text)
             if match:
                 return match.group(1), match.group(2)
             return None, text
@@ -40,7 +47,7 @@ class IRTree:
         stack = [root]
         for raw in sections:
             number_raw, title = split_numbering(raw.text)
-            number_parts = [int(n) for n in number_raw.split(".")] if number_raw else None
+            number_parts = [n for n in number_raw.split(".")] if number_raw else None
             level = len(number_parts) if number_parts else 1
                 
             node = IRTree(
@@ -60,7 +67,7 @@ class IRTree:
         
         return root
     
-    def flat(self, root: "IRTree" = None) -> list["IRTree"]:
+    def flat(self, root: IRTreeNode|None = None) -> list[IRTreeNode]:
         
         if not root:
             return self.flat(self)

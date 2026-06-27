@@ -36,7 +36,6 @@ def parse_document(file_path, batch_size=8, skip_ocr=False) -> ParsedDocument:
                 # crop = source_document.resize_max_2048(source_document.crop(page_no, bbox))
                 print(f"Re-OCRing {element.self_ref}")
                 crop = source_document.crop(page_no, bbox)
-                crop = source_document.resize_max_2048(crop)
                 result = surya.run_blocks([crop])[0]
                 
                 if result:

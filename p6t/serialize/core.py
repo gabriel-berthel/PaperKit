@@ -1,5 +1,6 @@
 
 import base64
+from io import BytesIO
 
 from p6t.model.dto.ir_nodes import IRHeader, IRListItem, IRParagraph
 from p6t.model.normalized_document import NormalizedDocument
@@ -43,6 +44,8 @@ def flatten_elements(normalized_document: NormalizedDocument, resolve_refs=True)
                     
     return items
             
-def image_to_data_uri(image_bytes, mime="image/png"):
-    encoded = base64.b64encode(image_bytes).decode("utf-8")
-    return f"data:{mime};base64,{encoded}"
+def image_to_data_uri(img):
+    buffer = BytesIO()
+    img.save(buffer, format="png")
+    encoded = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    return f"data:{"image/png"};base64,{encoded}"
