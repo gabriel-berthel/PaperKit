@@ -174,8 +174,9 @@ class TextCleaner:
             latex = match.group(1)
             
             if (latex.strip() == texer.latex_to_text(latex).strip()) \
-            and not re.match(r'[A-Za-z]+\([^\)]\)', latex) or re.match(r'[A-Za-z]+\S?\[[^\]]\]', latex) \
-            or "_" not in latex:
+            and not re.match(r'[A-Za-z]+\([^\)]\)', latex) \
+            and not re.match(r'[A-Za-z]+\S?\[[^\]]\]', latex) \
+            and not "_" in latex:
                 return latex
             
             return f" $ {TextCleaner.normalize_latex(latex)} $ "
