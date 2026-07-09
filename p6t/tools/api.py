@@ -18,7 +18,12 @@ from p6t.tools.core.wordnet import get_wordnet_definition_in_context, word_in_wo
 from p6t.tools.utils.model import EntityProbe, TermInContextRequest, TextRequest, TextResponse
 from p6t.tools.utils.utils import chunk_paragraphs
 
+from p6t.tools.lazy_loading import ensure_kokoro_voices
+
 app = FastAPI()
+
+# downloading Kokoro-TTS voices if non-existant
+ensure_kokoro_voices()
 
 app.add_middleware(
     CORSMiddleware,
@@ -27,7 +32,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 router = APIRouter(prefix="/api")
 app.include_router(router)

@@ -4,16 +4,14 @@ from pathlib import Path
 
 import uvicorn
 
-from p6t.bundle.bundle import export_document
+from p6t.bundling.bundle import export_document
 from p6t.model.normalized_document import NormalizedDocument
 from p6t.model.parsed_document import ParsedDocument
 from p6t.normalizing.normalize import normalize_and_push
 from p6t.parsing.parse import parse_and_push
 from p6t.persistance.db import db_get
-from p6t.serialize.core import flatten_elements
-from p6t.serialize.serialize import serialize_html, serialize_markdown, serialize_text
-from p6t.tools.bootsrap import boostrap_project_librairies
-
+from p6t.serializing.core import flatten_elements
+from p6t.serializing.serialize import serialize_html, serialize_markdown, serialize_text
 
 def cmd_register(args):
     pdf_path = Path(args.pdf)
@@ -140,14 +138,6 @@ def cmd_serve(args):
     from p6t.tools.api import app
     uvicorn.run(app, host="localhost", port=8080)
 
-def cmd_init(args):
-    print("Bootstrapping project libraries...")
-
-    boostrap_project_librairies()
-
-    print("Initialization complete.")
-    return 0
-
 def main():
     parser = argparse.ArgumentParser(prog="p6t")
 
@@ -233,12 +223,6 @@ def main():
     )
     serve_parser.set_defaults(func=cmd_serve)
         
-    # Bootstrapping
-    init_parser = subparsers.add_parser(
-        "init",
-        help="Initialize the project environment"
-    )
-    init_parser.set_defaults(func=cmd_init)
         
     args = parser.parse_args()
     raise SystemExit(args.func(args))

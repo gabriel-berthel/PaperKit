@@ -1,0 +1,18 @@
+/* ---- Editor ---- */
+
+#app-content.editing {
+  outline: 2px dashed rgba(37, 99, 235, 0.3);
+  outline-offset: 12px;
+  border-radius: 4px;
+}
+
+#app-content.editing p:hover,
+#app-content.editing h1:hover,
+#app-content.editing h2:hover,
+#app-content.editing h3:hover {
+  background: rgba(37, 99, 235, 0.04);
+  border-radius: 4px;
+  cursor: text;
+}
+
+/* ---- Toolbar ---- */

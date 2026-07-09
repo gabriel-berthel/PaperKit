@@ -3,7 +3,7 @@ import unicodedata
 from sumy.nlp.tokenizers import Tokenizer
 from sumy.parsers.plaintext import PlaintextParser
 
-from p6t.tools.bootsrap import get_bart_pipeline, get_summarizer
+from p6t.tools.lazy_loading import get_bart_pipeline, get_summarizer
 
 MAX_BART_CTX = 1024
 

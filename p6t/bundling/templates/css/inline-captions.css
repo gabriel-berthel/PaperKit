@@ -1,0 +1,11 @@
+[data-type="caption"] {
+  color: inherit;
+  opacity: 0.8;
+  font-size: 1.0em;
+  cursor: context-menu;
+  transition: opacity 0.15s ease;
+}
+
+[data-type="caption"]:hover {
+  opacity: 1;
+}

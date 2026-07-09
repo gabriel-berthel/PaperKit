@@ -7,7 +7,7 @@ from deepmultilingualpunctuation import PunctuationModel
 from nltk.corpus import words
 
 from p6t.normalizing.text_cleaner import TextCleaner
-from p6t.tools.bootsrap import ensure_nltk
+from p6t.tools.lazy_loading import ensure_nltk
 
 tool = language_tool_python.LanguageTool('en-US')
 seg = pysbd.Segmenter(language="en", clean=False, doc_type=None)

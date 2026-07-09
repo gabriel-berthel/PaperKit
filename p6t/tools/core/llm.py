@@ -3,7 +3,7 @@ import json
 from ollama import AsyncClient
 from pylatexenc.latex2text import LatexNodes2Text
 
-from p6t.tools.bootsrap import init_llama32
+from p6t.tools.lazy_loading import init_llama32
 
 init_llama32()
 

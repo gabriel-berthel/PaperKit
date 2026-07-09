@@ -1,0 +1,5 @@
+{%- if el.type == 'heading' %}
+<h{{ el.level }} data-type='heading'>{{ el.content }}</h{{ el.level }}>
+{%- elif el.type in tag_map %}
+<{{ tag_map[el.type] }} data-type="{{ el.type }}"{% if el.type == 'bullet' %} data-subtype="bullet"{% endif %}>{{ el.content | safe }}</{{ tag_map[el.type] }}>
+{%- endif %}
