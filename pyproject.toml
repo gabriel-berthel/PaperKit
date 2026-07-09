@@ -49,6 +49,8 @@ p6t = "p6t.cli:main"
 
 [tool.poetry.dependencies]
 surya-ocr = "0.17.1"
+deepmultilingualpunctuation = "1.0.1"
+transformers = "4.56.1"
 
 [tool.setuptools]
 include-package-data = true
