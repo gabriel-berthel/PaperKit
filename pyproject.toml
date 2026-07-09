@@ -21,7 +21,7 @@ dependencies = [
     
     # PDF Cropping
     "pdf2image",
-    "python-poppler", # depends on poppler-cpp backend,
+    # "python-poppler", # depends on poppler-cpp backend,
     
     # Figure angle
     "pytesseract", # you need to install it on your machine
