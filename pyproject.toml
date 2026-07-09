@@ -57,4 +57,4 @@ include-package-data = true
 where = ["."]
 
 [tool.setuptools.package-data]
-p6t = ["bundle/templates/**/*"]
+p6t = ["bundling/templates/**/*"]
