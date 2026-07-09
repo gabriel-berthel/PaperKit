@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "PaperKit"
-version = "1.0.2"
+version = "1.0.3"
 description = "Making science more accecible! "
 requires-python = ">=3.12"
 
 dependencies = [
     "transformers==4.56.1",
-    "numpy==2.4.6"
+    "numpy==2.4.6",
     "curl_cffi",
     "fastapi",
     "uvicorn",
@@ -19,7 +19,7 @@ dependencies = [
     "docling",
 
     # Maths Inlining
-     "surya-ocr==0.17.1", # depends on llama-cpp backend or vlm
+    "surya-ocr==0.17.1", # depends on llama-cpp backend or vlm
     
     # PDF Cropping
     "pdf2image",
@@ -31,7 +31,7 @@ dependencies = [
     "pysbd",
 
     # Text Normalization
-   "deepmultilingualpunctuation==1.0.1",
+    "deepmultilingualpunctuation==1.0.1",
     "nltk", # + nltk.download('words')
     "language_tool_python", # requires openjdk 
     "pylatexenc",
