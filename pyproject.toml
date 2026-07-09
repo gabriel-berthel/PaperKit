@@ -49,3 +49,12 @@ p6t = "p6t.cli:main"
 
 [tool.poetry.dependencies]
 surya-ocr = "0.17.1"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+p6t = ["bundle/templates/**/*"]
