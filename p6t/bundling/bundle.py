@@ -10,9 +10,10 @@ from jinja2 import Environment, FileSystemLoader
 from p6t.model.normalized_document import NormalizedDocument
 from p6t.serializing.core import flatten_elements
 from p6t.serializing.serialize import serialize_json
+from importlib.resources import files
 
 def load_index_template():
-    templates_dir = Path("p6t/bundling/templates")
+    templates_dir = files("p6t.bundling") / "templates"
     env = Environment(loader=FileSystemLoader(templates_dir))
     index = env.get_template("index.jinja")
     return index
