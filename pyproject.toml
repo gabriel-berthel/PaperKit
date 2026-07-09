@@ -4,9 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "PaperKit"
-version = "0.1.0"
+version = "1.0.1"
 description = "Making science more accecible! "
 requires-python = ">=3.12"
+dependencies = [
+    "surya-ocr==0.17.1",
+    "deepmultilingualpunctuation==1.0.1",
+    "transformers==4.56.1",
+    "numpy==2.4.6"
+]
 
 dependencies = [
     "curl_cffi",
@@ -45,12 +51,6 @@ dependencies = [
 
 [project.scripts]
 p6t = "p6t.cli:main"
-
-[tool.poetry.dependencies]
-surya-ocr = "0.17.1"
-deepmultilingualpunctuation = "1.0.1"
-transformers = "4.56.1"
-numpy = "2.4.6"
 
 [tool.setuptools]
 include-package-data = true
