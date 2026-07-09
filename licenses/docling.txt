@@ -1,0 +1,5 @@
+docling 2.111.0
+License: Unknown
+
+Full license text could not be located automatically.
+Check the project page for details: homepage, https://github.com/docling-project/docling
