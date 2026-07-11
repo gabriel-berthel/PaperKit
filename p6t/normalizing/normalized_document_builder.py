@@ -189,9 +189,7 @@ class NormalizedDocumentBuilder:
     
     def _group_forward_code_blocks(self, elements):
         """
-        Hardcoded heuristics to restore text continuity around identifiable structures.
-        Currently, handles: Paragraph → [Floating 'Algorithm' + 'Code'] → Paragraph.
-        Should be extended as new patterns are encountered.
+        Paragraph → [Floating 'Algorithm' + 'Code'] → Paragraph grouping
         """
             
         i = 0
@@ -223,9 +221,7 @@ class NormalizedDocumentBuilder:
     
     def _group_forward_formula(self, elements):
         """
-        Hardcoded heuristics to restore text continuity around identifiable structures.
-        Currently, handles: Paragraph → [Floating 'Algorithm' + 'Code'] → Paragraph.
-        Should be extended as new patterns are encountered.
+        Paragraph → [Floating 'Formula'] → Paragraph grouping
         """
             
         i = 0
