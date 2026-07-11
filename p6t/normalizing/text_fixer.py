@@ -286,6 +286,7 @@ class TextFixer:
             return text
         
         # if small left side & multiple sentence marker => we assume it is a sentence.
+        # legacy. should probably be deleted. TODO: investigate if it is ever triggered
         if len(left.split(" ")) <= 10 and TextFixer.no_word_in(left, SENTENCE_MARKERS | STRUCTURE) >= 3:
             return text
         
