@@ -155,7 +155,7 @@ class TextFixer:
             return False
             
         # Known non-header patterns. Regex would catch more but risks introducing
-        # more bugs than it solves — these cases are rare enough that explicit checks are safer.
+        # more bugs than it solves. these cases are rare enough that explicit checks are safer.
         if "et al" in sentence or "keywords:" in sentence.lower():
             return False
         
@@ -179,7 +179,7 @@ class TextFixer:
             return text, None
         
         left = sentences[0]
-        if TextFixer.is_heading(left):
+        if TextFixer.is_heading(left): 
             right = text.split(".", maxsplit=1)[1]
             return left, right.strip()
         
